@@ -20,35 +20,78 @@ Este documento tiene como objetivo recoger las principales características meto
 Las líneas metodológicas siguen las recomendaciones recogidas por EUROSTAT, concretamente aquellas que figuran en "ESS guidelines on seasonal adjustment" [@ESSguidelines2015] y en "Handbook on Seasonal Adjustment" [@handbookSA2018].
 
 # 2.Política general de ajuste estacional
+
 La política general de ajuste estacional consistirá en lo siguiente:
 
-1. Anualmente se llevará a cabo un análisis completo de las series más relevantes, como mínimo aquellas de exportaciones e importaciones. Este análisis incluirá la identificación del modelo, el ajuste estacional y la estimación de parámetros.
+2.1.  Anualmente se llevará a cabo un análisis completo de las series más relevantes, como mínimo aquellas de exportaciones e importaciones. Este análisis incluirá la identificación del modelo, el ajuste estacional y la estimación de parámetros.
 
-2. El análisis anual se acompañará de un informe de ajuste manual para verificar los resultados del modelo automático y, en caso necesario, introducir las modificaciones pertinentes. Este análisis se realizará dentro de los 3 meses posteriores a la recepción de los datos definitivos de la AEAT del año anterior.
+2.2.  El análisis anual se acompañará de un informe de ajuste manual para verificar los resultados del modelo automático y, en caso necesario, introducir las modificaciones pertinentes. Este análisis se realizará dentro de los 3 meses posteriores a la recepción de los datos definitivos de la AEAT del año anterior.
 
-3. Se realizarán revisiones mensuales automatizadas cuando se reciban los últimos datos provisionales de la AEAT. 
+2.3.  Se realizarán revisiones mensuales automatizadas cuando se reciban los últimos datos provisionales de la AEAT.
 
-4. Las revisiones mensuales consistirán en una reestimación de parámeteros y en la revisión de los outliers en los últimos 12 meses. Se generará un informe de revisión automatizado en el que se recojan los resultados de la revisión.
+2.4.  Las revisiones mensuales consistirán en una reestimación de parámeteros y en la revisión de los outliers en los últimos 12 meses. Se generará un informe de revisión automatizado en el que se recojan los resultados de la revisión.
 
 En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 
 # 3.Pre-procesado de la serie temporal
 
--En los ajustes estacionales anuales y las revisiones mensuales se usarán las rutinas automáticas implementadas en RJDemetra+ v.3 (rjd3 [@rjdverse]). Éste paquete aún se encuentra en desarrollo lo que pude resultar en ajustes a la metodología a medida que se vayan estabilizando las versiones y funcionalidades. Todos los cambios realizados se recogerán en este documento.
+3.1. En los ajustes estacionales anuales y las revisiones mensuales se usarán las rutinas automáticas implementadas en RJDemetra+ v.3 (rjd3 [@rjdverse]). Éste paquete aún se encuentra en desarrollo lo que pude resultar en ajustes a la metodología a medida que se vayan estabilizando las versiones y funcionalidades. Todos los cambios realizados se recogerán en este documento.
 
--El ajuste anual manual se llevará a cabo con el programa JDemetra+ v.2.2.5.
+3.2. El ajuste anual manual se llevará a cabo con el programa JDemetra+ v.2.2.5 .
 
--En todo caso, el algoritmo que se utilizará para los análisis será TRAMO-SEATS. La especificación por defecto para la ejecución de TRAMO-SEATS será "RSAFull". Para una descripción más detallada de las especificaciones ver "Practical Guide to Seasonal Adjustment with JDemetra+" [@GuideSAJDemetra2020].
+3.3. En todo caso, el algoritmo que se utilizará para los análisis será TRAMO (incluido en TRAMO-SEATS). La especificación por defecto para la ejecución de TRAMO-SEATS será "RSAFull". Para una descripción más detallada de las especificaciones ver "Practical Guide to Seasonal Adjustment with JDemetra+" [@GuideSAJDemetra2020].
 
--A las especificaciones anteriores se añadirá el calendario de fiestas nacionales que comprende los días siguientes.
+3.4. A las especificaciones anteriores se añadirá el calendario de fiestas nacionales fijas que comprende los días siguientes:
+
+    -1 de enero, Año Nuevo.
+    -6 de enero, Reyes.
+    -1 de mayo, Día del Trabajador.
+    -15 de agosto, Asunción de la Virgen.
+    -12 de octubre, Fiesta Nacional de España.
+    -1 de noviembre, Todos los Santos.
+    -6 de diciembre, Día de la Constitución Española.
+    -8 de diciembre, Inmaculada Concepción.
+    -25 de diciembre, Navidad.
+  
+3.5. Para el efecto de días laborables (trading-days) se usarán 6 regresores. Esta opción puede elegirse dentro de las especificaciones de RSAFull o ser añadida manualmente. Para más detalles sobre este punto ver el capítulo 5 de "Handbook on Seasonal Adjustment" [@handbookSA2018].
+
+3.6. El efecto de Semana Santa y Año Bisiesto es detectado e incluido por la rutina TRAMO-SEATS RSAFull de forma automática si es significativo.
+
+3.7. La detección e inclusión de outliers se lleva a cabo de forma automática por la rutina TRAMO-SEATS RSAFull. Los tipos de outliers que se consideran son: aditivos (AO), cambio de nivel (LS), cambio transitorio (TC) y outlier estacional (SO). Aquellos outliers con una clara interpretación económica serán incluidos manualmente y se mantendrán fijos en el modelo incluso si su nivel de significación no es suficiente.
+
 
 # 4.Ajuste estacional de la serie temporal
 
-# 5.Política de revisión
+4.1. Para el ajuste estacional propiamente dicho se usará el método paramétrico de extracción de señal SEATS implementado en el algoritmo TRAMO-SEATS en las implementaciones de JDemetra+ mencionadas en las ección anterior.
 
-# 6.Particularidades y diagnÓstico del ajuste estacional
+4.2. En los informes anuales y las revisiones mensuales se incluiran gráficos de razón S-I para monitorear la estacionalidad.
+
+# 5.Política de revisiones
+
+5.1. La pólitica de revisión será la recogida en el punto 4.2 de "ESS guidelines on seasonal adjustment" [@ESSguidelines2015]: Partial Concurrent Adjustment. Esta política implica que el modelo, filtros, y outliers son identificados y estimados anualmente (y manualmente en las series más relevantes) y los parámetros se re-estiman cada vez que se reciben nuevas observaciones (mensualmente).
+
+5.2. La revisión exahustiva anual se realizará en los 3 meses inmediatos siguientes a la recepción de los datos definitivos del año anterior de la AEAT.
+
+5.3. Las revisiones parciales mensuales se llevarán a cabo de forma automatizada cuando se reciban los datos provisionales mensuales de la AEAT.
+
+5.4. La política Partial Concurrent Adjustment permite cierta flexibilidad y fine-tunning dependiendo de la versión de software utilizada. En el caso de RJDemetra+ v.3 es posible ajustar la ventana temporal para la detección y estimación de outliers. Para las revisiones anuales se usará como ventana toda la serie mientras que para las revisiones mensuales se usarán los 12 últimos meses. 
+
+5.5. En aquellos casos en los que se produzca un cambio en la metodología de ajuste estacional y/o en el software utilizado se realizará un análisis exahustivo de toda la serie, independientemente del momento del año en el que este cambio se produzca.
+
+# 6.Particularidades y diagnóstico del ajuste estacional.
+
+6.1. La longitud de la series analizadas será de 14 años completos más los meses del año en curso. De esta manera evitamos en los posible los problemas que surgen con series muy cortas o muy largas [@handbookSA2018].
+
+6.2. Para evaluar la calidad de los análisis se utilizarán los resultados de los tests incluidos en los paquetes de JDemtra+ citados con anterioridad.
 
 # 7.Presentación de resultados
 
-# 8.Bibliografía
+7.1. El objetivo principal es asegurar la transparencia y replicabilidad de los análisis.
 
+7.2. Anualmente se presentará un informe de análisis y ajuste estacional de cada serie estudiada en el que se reflejen las características del modelo identificado, estimaciones y diagnósticos pertinentes [@ESSguidelines2015] de cada fase del análisis. Para las series de menor relevancia puede automatizarse dicho informe formateando adecuadamente los outputs del software utilizado y detallando claramente las especificaciones utilizadas en la rutina automatica con el fin de que los cálculos puedan ser replicados por otros usuarios y asegurar la transparencia del proceso.
+
+7.3. Mensualmente se generará de forma automática un informe sobre las revisiones llevadas a cabo. Este informe deberá contener información sobre las especificaciones de partida, estimaciones anteriores, estimaciones actualizadas y análisis de outliers en la ventana temporal seleccionada. En caso de considerarse necesario pueden añadirse indicadores que permitan hacer un seguimeinto más detallado de las revisiones.
+
+7.4. En todos los casos se mantendrá un repositorio con los inputs y outputs de los análisis y revisiones llevados a cabo para cada una de las series estudiadas. Así se puede hacer un seguimeinto de las revisiones y analisis realizados hasta la fecha.
+
+# 8.Bibliografía
