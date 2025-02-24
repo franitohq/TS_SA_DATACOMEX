@@ -1,0 +1,54 @@
+---
+title: "Metodología para el Ajuste Estacional"
+author: "S.G. Estudios y Prospecciones, MINECO"
+format: pdf
+editor: visual
+date: today
+date-format: "long"
+lang: es-ES
+bibliography: data/references.bib
+nocite: |
+  @handbookSA2018
+csl: data/american-mathematical-society.csl
+output-dir: output
+---
+
+# 1.Introducción
+
+Este documento tiene como objetivo recoger las principales características metodológicas del ajuste estacional de las series temporales de importaciones y exportaciones de España llevado a cabo en la S.G. de Estudios y Prospecciones de la Secretaría de Estado de Comercio en el MINECO.
+
+Las líneas metodológicas siguen las recomendaciones recogidas por EUROSTAT, concretamente aquellas que figuran en "ESS guidelines on seasonal adjustment" [@ESSguidelines2015] y en "Handbook on Seasonal Adjustment" [@handbookSA2018].
+
+# 2.Política general de ajuste estacional
+La política general de ajuste estacional consistirá en lo siguiente:
+
+1. Anualmente se llevará a cabo un análisis completo de las series más relevantes, como mínimo aquellas de exportaciones e importaciones. Este análisis incluirá la identificación del modelo, el ajuste estacional y la estimación de parámetros.
+
+2. El análisis anual se acompañará de un informe de ajuste manual para verificar los resultados del modelo automático y, en caso necesario, introducir las modificaciones pertinentes. Este análisis se realizará dentro de los 3 meses posteriores a la recepción de los datos definitivos de la AEAT del año anterior.
+
+3. Se realizarán revisiones mensuales automatizadas cuando se reciban los últimos datos provisionales de la AEAT. 
+
+4. Las revisiones mensuales consistirán en una reestimación de parámeteros y en la revisión de los outliers en los últimos 12 meses. Se generará un informe de revisión automatizado en el que se recojan los resultados de la revisión.
+
+En las secciones siguientes se detallan otros aspectos relevantes del proceso.
+
+# 3.Pre-procesado de la serie temporal
+
+-En los ajustes estacionales anuales y las revisiones mensuales se usarán las rutinas automáticas implementadas en RJDemetra+ v.3 (rjd3 [@rjdverse]). Éste paquete aún se encuentra en desarrollo lo que pude resultar en ajustes a la metodología a medida que se vayan estabilizando las versiones y funcionalidades. Todos los cambios realizados se recogerán en este documento.
+
+-El ajuste anual manual se llevará a cabo con el programa JDemetra+ v.2.2.5.
+
+-En todo caso, el algoritmo que se utilizará para los análisis será TRAMO-SEATS. La especificación por defecto para la ejecución de TRAMO-SEATS será "RSAFull". Para una descripción más detallada de las especificaciones ver "Practical Guide to Seasonal Adjustment with JDemetra+" [@GuideSAJDemetra2020].
+
+-A las especificaciones anteriores se añadirá el calendario de fiestas nacionales que comprende los días siguientes.
+
+# 4.Ajuste estacional de la serie temporal
+
+# 5.Política de revisión
+
+# 6.Particularidades y diagnÓstico del ajuste estacional
+
+# 7.Presentación de resultados
+
+# 8.Bibliografía
+
