@@ -5,6 +5,10 @@
 # install.packages("remotes")
 # install.packages("devtools")
 # install.packages("rJava")
+# install.packages("openxlsx")
+# install.packages("writexl")  
+# install.packages("zoo")
+# install.packages("lubridate")
 
 # DATACOMEXR
 # remotes::install_github("fabiansalazares/datacomexr")
@@ -79,6 +83,9 @@ library("promises")
 library("plotly")
 library("tsibble")
 library("rJava")
+library("openxlsx")
+library("lubridate")
+library("zoo")
 
 # DATACOMEXR
 library("datacomexr")
@@ -146,5 +153,47 @@ library("broom") #PCA
 
 
 
+# CREAR ESTRUCTURA DE CARPETAS PARA GUARDAR LOS INPUTS Y OUTPUTS DE LOS ANALISIS-----
+current_date <- Sys.Date()
+formatted_date <- format(current_date, "%d.%m.%Y")
+folder_name <- paste0("ANALISIS_", formatted_date)
+full_path <- file.path("output", folder_name)
+dir.create(full_path)
 
+# CARGA DE DATOS CON DATACOMEX-----
+
+datacomex_E_raw <- datacomexr::sec(flujo = "E", nivel=1, desde=2010, nocache = TRUE) |>
+  dplyr::group_by(year, mes, flujo) |>
+  dplyr::summarise(euros=sum(euros, na.rm=T)) |>
+  dplyr::select(year, mes, euros)
+
+
+
+datacomex_I_raw <- datacomexr::sec(flujo = "I", nivel=1, desde=2010, nocache = TRUE) |>
+  dplyr::group_by(year, mes, flujo) |>
+  dplyr::summarise(euros=sum(euros, na.rm=T)) |>
+  dplyr::select(year, mes, euros)
+
+
+
+ts_air <- AirPassengers
+
+# PREPARACIÓN DE LAS SERIES
+
+ts_datacomex_E_0 <- stats::ts(datacomex_E_raw$euros,
+                              start = c(2010, 1),
+                              frequency =12)
+
+ts_datacomex_I_0 <- stats::ts(datacomex_I_raw$euros,
+                              start = c(2010, 1),
+                              frequency =12)
+
+ts_df <- data.frame(Time = as.Date(as.yearmon(time(ts_air))), 
+                    Value = as.numeric(ts_air) 
+                    )
+ts_df$Time <- format(ts_df$Time, "1.%m.%Y")
+
+openxlsx::write.xlsx(ts_df, file = "output/ts_data.xlsx", rowNames = FALSE)
+
+y_raw <- ts_air
 

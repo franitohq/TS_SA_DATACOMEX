@@ -80,7 +80,7 @@ En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 
 # 6.Particularidades y diagnóstico del ajuste estacional.
 
-6.1. La longitud de la series analizadas será de 14 años completos más los meses del año en curso. De esta manera evitamos en los posible los problemas que surgen con series muy cortas o muy largas [@handbookSA2018].
+6.1. La longitud de la series analizadas será de 15-16 años completos más los meses del año en curso. De esta manera evitamos en los posible los problemas que surgen con series muy cortas o muy largas [@handbookSA2018].
 
 6.2. Para evaluar la calidad de los análisis se utilizarán los resultados de los tests incluidos en los paquetes de JDemtra+ citados con anterioridad.
 
