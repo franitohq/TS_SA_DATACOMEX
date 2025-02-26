@@ -159,6 +159,7 @@ formatted_date <- format(current_date, "%d.%m.%Y")
 folder_name <- paste0("ANALISIS_", formatted_date)
 full_path <- file.path("output", folder_name)
 dir.create(full_path)
+# rm(list = ls())
 
 # CARGA DE DATOS CON DATACOMEX-----
 
@@ -178,7 +179,7 @@ datacomex_I_raw <- datacomexr::sec(flujo = "I", nivel=1, desde=2010, nocache = T
 
 ts_air <- AirPassengers
 
-# PREPARACIÓN DE LAS SERIES
+# PREPARACIÓN DE LAS SERIES-----
 
 ts_datacomex_E_0 <- stats::ts(datacomex_E_raw$euros,
                               start = c(2010, 1),
@@ -193,7 +194,114 @@ ts_df <- data.frame(Time = as.Date(as.yearmon(time(ts_air))),
                     )
 ts_df$Time <- format(ts_df$Time, "1.%m.%Y")
 
-openxlsx::write.xlsx(ts_df, file = "output/ts_data.xlsx", rowNames = FALSE)
+xls_output_path <- file.path("output", folder_name, "ts_data.xlsx")
+openxlsx::write.xlsx(ts_df, file = xls_path, rowNames = FALSE)
 
 y_raw <- ts_air
 
+
+# ESPECIFICACIONES PARA EL ANALISIS-----
+
+# CALENDARIO FIESTAS FIJAS NACIONALES
+spanish_calendar <- rjd3toolkit::national_calendar(days = list(
+  special_day('NEWYEAR'),
+  fixed_day(1,6), # Reyes
+  special_day('MAYDAY'),
+  fixed_day(8,15), # Asunción de la "Virgen"
+  fixed_day(10,12), # Fiesta Nacional
+  special_day('ALLSAINTSDAY'),
+  fixed_day(12,6), # Día de la Constitución Española
+  fixed_day(12,8), # Inmaculada Concepción
+  special_day('CHRISTMAS')
+)
+)
+
+# CREAMOS REGRESORES
+regs_td <- rjd3toolkit::calendar_td(
+  calendar = spanish_calendar,
+  s = y_raw,
+  # frequency = 12,
+  # start = c(2000,1),
+  # length = 300,
+  holiday = 7,
+  # groups = c(1, 2, 3, 4, 5, 6, 0),
+  groups = c(1, 2, 1, 1, 1, 1, 0),
+  contrasts = TRUE
+)
+
+# my_regressors <- list( Monday = regs_td[,1],
+#                        Tuesday = regs_td[,2],
+#                        Wednesday = regs_td[,3],
+#                        Thursday = regs_td[,4],
+#                        Friday = regs_td[,5],
+#                        Saturday = regs_td[,6])
+
+my_regressors <- list( NoTuesday = regs_td[,1],
+                       Tuesday = regs_td[,2])
+
+my_context <- rjd3toolkit::modelling_context(variables = my_regressors)
+rjd3toolkit::.r2jd_modellingcontext(my_context)$getTsVariableDictionary()
+
+core_tramoseats_spec <- rjd3tramoseats::tramoseats_spec("rsafull")
+str(core_tramoseats_spec)
+
+tramoseats_spec1_estimate_default <- rjd3toolkit::set_estimate(core_tramoseats_spec,
+                                                               tol = 0.0000001,
+                                                               exact.ml = TRUE,
+                                                               unit.root.limit = 0.96)
+str(tramoseats_spec1_estimate_default)
+
+tramoseats_spec2_transform <- rjd3toolkit::set_transform(tramoseats_spec1_estimate_default,
+                                                         fun = "Auto")
+str(tramoseats_spec2_transform)
+
+
+tramoseats_spec3_TD_LY <- rjd3toolkit::set_tradingdays(tramoseats_spec2_transform,
+                                                       option = "UserDefined",
+                                                       uservariable = c("r.Monday", "r.Tuesday","r.Wednesday",
+                                                                       "r.Thursday","r.Friday","r.Saturday"),
+                                                       test = "Separate_T",
+                                                       automatic = "Unused",
+                                                       leapyear = "LeapYear")
+str(tramoseats_spec3_TD_LY)
+
+
+tramoseats_spec4_EASTER <- rjd3toolkit::set_easter(tramoseats_spec3_TD_LY,
+                                                   enabled = "TRUE",
+                                                   test = "Remove",
+                                                   type =  "IncludeEasterMonday")
+str(tramoseats_spec4_EASTER)
+
+tramoseats_spec5_AUTO_OUTLIER <- rjd3toolkit::set_outlier(tramoseats_spec4_EASTER,
+                                                         span.type = "All",
+                                                         outliers.type = c("AO", "LS", "TC", "SO"),
+                                                         critical.value = 3.5)
+str(tramoseats_spec5_AUTO_OUTLIER)
+
+tramoseats_spec_final <- tramoseats_spec5_AUTO_OUTLIER
+
+
+tramoseats_spec_final$tramo$regression$td$users
+str(tramoseats_spec_final)
+
+# EJECUCION DEL ANALISIS CON ESPECIFICACIONES SELECCIONADAS-----
+sa_tramoseats_ud <- rjd3tramoseats::tramoseats(y_raw, tramoseats_spec_final, context = my_context)
+
+# TRAMO-SEATS SUMMARY
+summary(sa_tramoseats_ud)
+str(sa_tramoseats_ud)
+
+# OBTENER SERIES FINALES------
+str(sa_tramoseats_ud$result$final)
+
+original_ts <- sa_tramoseats_ud$result$final$series$data
+seasonally_adjusted_ts <- sa_tramoseats_ud$result$final$sa$data
+trend_ts <- sa_tramoseats_ud$result$final$t$data
+seasonal_component_ts <- sa_tramoseats_ud$result$final$s$data
+irregular_ts <- sa_tramoseats_ud$result$final$i$data
+
+plot(original_ts)
+plot(seasonally_adjusted_ts)
+plot(trend_ts)
+plot(seasonal_component_ts)
+plot(irregular_ts)

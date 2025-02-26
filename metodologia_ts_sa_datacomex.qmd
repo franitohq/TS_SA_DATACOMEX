@@ -23,13 +23,13 @@ Las líneas metodológicas siguen las recomendaciones recogidas por EUROSTAT, co
 
 La política general de ajuste estacional consistirá en lo siguiente:
 
-2.1.  Anualmente se llevará a cabo un análisis completo de las series más relevantes, como mínimo aquellas de exportaciones e importaciones. Este análisis incluirá la identificación del modelo, el ajuste estacional y la estimación de parámetros.
+2.1. Anualmente se llevará a cabo un análisis completo de las series más relevantes, como mínimo aquellas de exportaciones e importaciones. Este análisis incluirá la identificación del modelo, el ajuste estacional y la estimación de parámetros.
 
-2.2.  El análisis anual se acompañará de un informe de ajuste manual para verificar los resultados del modelo automático y, en caso necesario, introducir las modificaciones pertinentes. Este análisis se realizará dentro de los 3 meses posteriores a la recepción de los datos definitivos de la AEAT del año anterior.
+2.2. El análisis anual se acompañará de un informe de ajuste manual para verificar los resultados del modelo automático y, en caso necesario, introducir las modificaciones pertinentes. Este análisis se realizará dentro de los 3 meses posteriores a la recepción de los datos definitivos de la AEAT del año anterior.
 
-2.3.  Se realizarán revisiones mensuales automatizadas cuando se reciban los últimos datos provisionales de la AEAT.
+2.3. Se realizarán revisiones mensuales automatizadas cuando se reciban los últimos datos provisionales de la AEAT.
 
-2.4.  Las revisiones mensuales consistirán en una reestimación de parámeteros y en la revisión de los outliers en los últimos 12 meses. Se generará un informe de revisión automatizado en el que se recojan los resultados de la revisión.
+2.4. Las revisiones mensuales consistirán en una reestimación de parámeteros y en la revisión de los outliers en los últimos 12 meses. Se generará un informe de revisión automatizado en el que se recojan los resultados de la revisión.
 
 En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 
@@ -43,22 +43,23 @@ En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 
 3.4. A las especificaciones anteriores se añadirá el calendario de fiestas nacionales fijas que comprende los días siguientes:
 
-    -1 de enero, Año Nuevo.
-    -6 de enero, Reyes.
-    -1 de mayo, Día del Trabajador.
-    -15 de agosto, Asunción de la Virgen.
-    -12 de octubre, Fiesta Nacional de España.
-    -1 de noviembre, Todos los Santos.
-    -6 de diciembre, Día de la Constitución Española.
-    -8 de diciembre, Inmaculada Concepción.
-    -25 de diciembre, Navidad.
-  
+```         
+-1 de enero, Año Nuevo.
+-6 de enero, Reyes.
+-1 de mayo, Día del Trabajador.
+-15 de agosto, Asunción de la Virgen.
+-12 de octubre, Fiesta Nacional de España.
+-1 de noviembre, Todos los Santos.
+-6 de diciembre, Día de la Constitución Española.
+-8 de diciembre, Inmaculada Concepción.
+-25 de diciembre, Navidad.
+```
+
 3.5. Para el efecto de días laborables (trading-days) se usarán 6 regresores. Esta opción puede elegirse dentro de las especificaciones de RSAFull o ser añadida manualmente. Para más detalles sobre este punto ver el capítulo 5 de "Handbook on Seasonal Adjustment" [@handbookSA2018].
 
 3.6. El efecto de Semana Santa y Año Bisiesto es detectado e incluido por la rutina TRAMO-SEATS RSAFull de forma automática si es significativo.
 
 3.7. La detección e inclusión de outliers se lleva a cabo de forma automática por la rutina TRAMO-SEATS RSAFull. Los tipos de outliers que se consideran son: aditivos (AO), cambio de nivel (LS), cambio transitorio (TC) y outlier estacional (SO). Aquellos outliers con una clara interpretación económica serán incluidos manualmente y se mantendrán fijos en el modelo incluso si su nivel de significación no es suficiente.
-
 
 # 4.Ajuste estacional de la serie temporal
 
@@ -74,7 +75,7 @@ En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 
 5.3. Las revisiones parciales mensuales se llevarán a cabo de forma automatizada cuando se reciban los datos provisionales mensuales de la AEAT.
 
-5.4. La política Partial Concurrent Adjustment permite cierta flexibilidad y fine-tunning dependiendo de la versión de software utilizada. En el caso de RJDemetra+ v.3 es posible ajustar la ventana temporal para la detección y estimación de outliers. Para las revisiones anuales se usará como ventana toda la serie mientras que para las revisiones mensuales se usarán los 12 últimos meses. 
+5.4. La política Partial Concurrent Adjustment permite cierta flexibilidad y fine-tunning dependiendo de la versión de software utilizada. En el caso de RJDemetra+ v.3 es posible ajustar la ventana temporal para la detección y estimación de outliers. Para las revisiones anuales se usará como ventana toda la serie mientras que para las revisiones mensuales se usarán los 12 últimos meses.
 
 5.5. En aquellos casos en los que se produzca un cambio en la metodología de ajuste estacional y/o en el software utilizado se realizará un análisis exahustivo de toda la serie, independientemente del momento del año en el que este cambio se produzca.
 
