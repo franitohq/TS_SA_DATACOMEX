@@ -12,6 +12,7 @@ nocite: |
 csl: data/american-mathematical-society.csl
 output-dir: output
 ---
+# 0.Resumen
 
 # 1.Introducción
 
@@ -23,7 +24,7 @@ Las líneas metodológicas siguen las recomendaciones recogidas por EUROSTAT, co
 
 La política general de ajuste estacional consistirá en lo siguiente:
 
-2.1. Anualmente se llevará a cabo un análisis completo de las series más relevantes, como mínimo aquellas de exportaciones e importaciones. Este análisis incluirá la identificación del modelo, el ajuste estacional y la estimación de parámetros.
+2.1. **Anualmente se llevará a cabo un análisis completo de las series más relevantes, como mínimo aquellas de exportaciones e importaciones.** Este análisis incluirá la identificación del modelo, el ajuste estacional y la estimación de parámetros.
 
 2.2. El análisis anual se acompañará de un informe de ajuste manual para verificar los resultados del modelo automático y, en caso necesario, introducir las modificaciones pertinentes. Este análisis se realizará dentro de los 3 meses posteriores a la recepción de los datos definitivos de la AEAT del año anterior.
 

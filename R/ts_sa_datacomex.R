@@ -159,7 +159,7 @@ formatted_date <- format(current_date, "%d.%m.%Y")
 folder_name <- paste0("ANALISIS_", formatted_date)
 full_path <- file.path("output", folder_name)
 dir.create(full_path)
-# rm(list = ls())
+rm(list = ls())
 
 # CARGA DE DATOS CON DATACOMEX-----
 
@@ -188,6 +188,8 @@ ts_datacomex_E_0 <- stats::ts(datacomex_E_raw$euros,
 ts_datacomex_I_0 <- stats::ts(datacomex_I_raw$euros,
                               start = c(2010, 1),
                               frequency =12)
+
+ts_air <- ts_datacomex_E_0
 
 ts_df <- data.frame(Time = as.Date(as.yearmon(time(ts_air))), 
                     Value = as.numeric(ts_air) 
@@ -260,7 +262,7 @@ tramoseats_spec3_TD_LY <- rjd3toolkit::set_tradingdays(tramoseats_spec2_transfor
                                                        option = "UserDefined",
                                                        uservariable = c("r.Monday", "r.Tuesday","r.Wednesday",
                                                                        "r.Thursday","r.Friday","r.Saturday"),
-                                                       test = "Separate_T",
+                                                       test = "Joint_F",
                                                        automatic = "Unused",
                                                        leapyear = "LeapYear")
 str(tramoseats_spec3_TD_LY)
@@ -299,9 +301,10 @@ seasonally_adjusted_ts <- sa_tramoseats_ud$result$final$sa$data
 trend_ts <- sa_tramoseats_ud$result$final$t$data
 seasonal_component_ts <- sa_tramoseats_ud$result$final$s$data
 irregular_ts <- sa_tramoseats_ud$result$final$i$data
+SI_ts <- seasonal_component_ts*irregular_ts
 
+# GRÁFICOS----- 
 
-# GRÁFICOS 
 
 plot(original_ts)
 plot(seasonally_adjusted_ts)
@@ -309,4 +312,66 @@ plot(trend_ts)
 plot(seasonal_component_ts)
 plot(irregular_ts)
 
-# CUADRO S-I 
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+
+# Example: Create 5 time series
+set.seed(123)
+time <- seq.Date(from = as.Date("2020-01-01"), by = "month", length.out = 24)
+ts1 <- cumsum(rnorm(24))
+ts2 <- cumsum(rnorm(24))
+ts3 <- cumsum(rnorm(24))
+ts4 <- cumsum(rnorm(24))
+ts5 <- cumsum(rnorm(24))
+
+# Combine into a single data frame
+data <- data.frame(
+  time = rep(time, 5),
+  value = c(ts1, ts2, ts3, ts4, ts5),
+  series = rep(c("Series 1", "Series 2", "Series 3", "Series 4", "Series 5"), each = 24)
+)
+
+# Plot with facets
+ggplot(data, aes(x = time, y = value)) +
+  geom_line() +
+  facet_wrap(~series, scales = "free_y", ncol = 2) + # Free y-axis scales for each facet
+  labs(
+    title = "Time Series Faceted Plot",
+    x = "Time",
+    y = "Value"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 12, face = "bold"), # Customize facet titles
+    strip.background = element_rect(fill = "lightblue") # Customize facet background
+  ) +
+  scale_y_continuous(sec.axis = dup_axis()) # Add a secondary y-axis on the right side
+
+# CUADRO S-I(REVISAR Y MODIFICAR FUNCION)----- 
+tsibble_sc_ts <- tsibble::as_tsibble(seasonal_component_ts)
+tsibble_SI_ts <- tsibble::as_tsibble(SI_ts)
+tsibble_sa_ts <- tsibble::as_tsibble(seasonally_adjusted_ts)
+
+
+feasts::gg_subseries(tsibble_sa_ts) +
+  ggplot2::labs(y = "Units",
+                title = "Seasonally Adjusted Series")
+
+
+feasts::gg_subseries(tsibble_sc_ts) +
+  ggplot2::labs(y = "Units",
+                title = "Seasonal Component")
+
+feasts::gg_subseries(tsibble_SI_ts) +
+  ggplot2::labs(y = "Units",
+                title = "SI Chart")
+
+
+
+# TASAS DE VARIACION-----
+
+
+# GUARDADO DE ARCHIVOS Y ORGANIZACIÓN
+
