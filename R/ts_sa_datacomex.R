@@ -9,8 +9,12 @@
 # install.packages("writexl")  
 # install.packages("zoo")
 # install.packages("lubridate")
+# install.packages("scales")
+# remove.packages("patchwork")
+# install.packages("patchwork")
 
-# DATACOMEXR
+
+DATACOMEXR
 # remotes::install_github("fabiansalazares/datacomexr")
 
 # GENERAL TSA
@@ -86,6 +90,8 @@ library("rJava")
 library("openxlsx")
 library("lubridate")
 library("zoo")
+library("scales")
+library("patchwork")
 
 # DATACOMEXR
 library("datacomexr")
@@ -159,7 +165,7 @@ formatted_date <- format(current_date, "%d.%m.%Y")
 folder_name <- paste0("ANALISIS_", formatted_date)
 full_path <- file.path("output", folder_name)
 dir.create(full_path)
-rm(list = ls())
+# rm(list = ls())
 
 # CARGA DE DATOS CON DATACOMEX-----
 
@@ -303,56 +309,104 @@ seasonal_component_ts <- sa_tramoseats_ud$result$final$s$data
 irregular_ts <- sa_tramoseats_ud$result$final$i$data
 SI_ts <- seasonal_component_ts*irregular_ts
 
+plot(original_ts)
+
+tsibble_o <- tsibble::as_tsibble(original_ts)
+tsibble_sa <- tsibble::as_tsibble(seasonally_adjusted_ts)
+tsibble_t <- tsibble::as_tsibble(trend_ts)
+tsibble_sc <- tsibble::as_tsibble(seasonal_component_ts)
+tsibble_i <- tsibble::as_tsibble(irregular_ts)
+tsibble_SI <- tsibble::as_tsibble(SI_ts)
+
+
+# Convert the tsibble index to Date format
+tsibble_o <- tsibble_o |> 
+  mutate(Date = as.Date(index))  # Convert yearmonth to Date
+tsibble_sa <- tsibble_sa |> 
+  mutate(Date = as.Date(index))
+tsibble_t <- tsibble_t |> 
+  mutate(Date = as.Date(index))
+tsibble_sc <- tsibble_sc |> 
+  mutate(Date = as.Date(index))
+tsibble_i <- tsibble_i |> 
+  mutate(Date = as.Date(index))
+tsibble_SI <- tsibble_SI |> 
+  mutate(Date = as.Date(index))
+
 # GRÁFICOS----- 
 
 
-plot(original_ts)
-plot(seasonally_adjusted_ts)
-plot(trend_ts)
-plot(seasonal_component_ts)
-plot(irregular_ts)
-
-library(ggplot2)
-library(dplyr)
-library(tidyr)
+# Define colors
+left_axis_color <- "black"  # Color for the left axis labels and ticks
+right_axis_color <- "black"  # Color for the right axis labels and ticks
 
 
-# Example: Create 5 time series
-set.seed(123)
-time <- seq.Date(from = as.Date("2020-01-01"), by = "month", length.out = 24)
-ts1 <- cumsum(rnorm(24))
-ts2 <- cumsum(rnorm(24))
-ts3 <- cumsum(rnorm(24))
-ts4 <- cumsum(rnorm(24))
-ts5 <- cumsum(rnorm(24))
 
-# Combine into a single data frame
-data <- data.frame(
-  time = rep(time, 5),
-  value = c(ts1, ts2, ts3, ts4, ts5),
-  series = rep(c("Series 1", "Series 2", "Series 3", "Series 4", "Series 5"), each = 24)
-)
-
-# Plot with facets
-ggplot(data, aes(x = time, y = value)) +
-  geom_line() +
-  facet_wrap(~series, scales = "free_y", ncol = 2) + # Free y-axis scales for each facet
+plot1 <- ggplot(tsibble_o, aes(x = index, y = value)) +
+  geom_line(color = "darkblue", size = 0.5) +  
   labs(
-    title = "Time Series Faceted Plot",
+    title = "Original Time Series",
     x = "Time",
-    y = "Value"
+    y = "Measured Quantity [units]"
   ) +
-  theme_minimal() +
+  scale_x_yearmonth(
+    labels = scales::date_format(format = "%Y"),  # Format date labels as years
+    breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
+  ) +
+  scale_y_continuous(
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, 700, by = 100)),  # Add a secondary y-axis
+    breaks = seq(0, 700, by = 100)  # Add ticks every 100 units on the y-axis
+  ) +
   theme(
-    strip.text = element_text(size = 12, face = "bold"), # Customize facet titles
-    strip.background = element_rect(fill = "lightblue") # Customize facet background
-  ) +
-  scale_y_continuous(sec.axis = dup_axis()) # Add a secondary y-axis on the right side
+    plot.title = element_text(
+      hjust = 0.5,           # Center the title
+      size = 13,             # Increase font size
+      face = "bold",         # Make the title bold
+      color = "darkblue"     # Change title color
+    ),
+    axis.title.y.left = element_text(color = left_axis_color),  # Left axis color
+    axis.text.y.left = element_text(color = left_axis_color),
+    axis.title.y.right = element_text(color = right_axis_color),  # Right axis color
+    axis.text.y.right = element_text(color = right_axis_color)
+  )
 
-# CUADRO S-I(REVISAR Y MODIFICAR FUNCION)----- 
-tsibble_sc_ts <- tsibble::as_tsibble(seasonal_component_ts)
-tsibble_SI_ts <- tsibble::as_tsibble(SI_ts)
-tsibble_sa_ts <- tsibble::as_tsibble(seasonally_adjusted_ts)
+plot2 <-ggplot(tsibble_sa, aes(x = index, y = value)) +
+  geom_line(color = "darkgreen", size = 0.5) +  
+  labs(
+    title = "Seasonally Adjusted Time Series",
+    x = "Time",
+    y = "Measured Quantity [units]"
+  ) +
+  scale_x_yearmonth(
+    labels = scales::date_format(format = "%Y"),  # Format date labels as years
+    breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
+  ) +
+  scale_y_continuous(
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, 500, by = 100)),  # Add a secondary y-axis
+    breaks = seq(0, 500, by = 100)  # Add ticks every 100 units on the y-axis
+  ) +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5,           # Center the title
+      size = 13,             # Increase font size
+      face = "bold",         # Make the title bold
+      color = "darkgreen"     # Change title color
+    ),
+    axis.title.y.left = element_text(color = left_axis_color),  # Left axis color
+    axis.text.y.left = element_text(color = left_axis_color),
+    axis.title.y.right = element_text(color = right_axis_color),  # Right axis color
+    axis.text.y.right = element_text(color = right_axis_color)
+  )
+
+
+
+combined_plot <- (plot1 | plot2) 
+  # (plot3 | plot4) /
+  # (plot5 | plot6)
+
+print(combined_plot)
+
+# CUADRO S-I(REVISAR Y MODIFICAR FUNCION)-----
 
 
 feasts::gg_subseries(tsibble_sa_ts) +
