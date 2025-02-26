@@ -224,20 +224,20 @@ regs_td <- rjd3toolkit::calendar_td(
   # start = c(2000,1),
   # length = 300,
   holiday = 7,
-  # groups = c(1, 2, 3, 4, 5, 6, 0),
-  groups = c(1, 2, 1, 1, 1, 1, 0),
+  groups = c(1, 2, 3, 4, 5, 6, 0),
+  # groups = c(1, 2, 1, 1, 1, 1, 0),
   contrasts = TRUE
 )
 
-# my_regressors <- list( Monday = regs_td[,1],
-#                        Tuesday = regs_td[,2],
-#                        Wednesday = regs_td[,3],
-#                        Thursday = regs_td[,4],
-#                        Friday = regs_td[,5],
-#                        Saturday = regs_td[,6])
+my_regressors <- list( Monday = regs_td[,1],
+                       Tuesday = regs_td[,2],
+                       Wednesday = regs_td[,3],
+                       Thursday = regs_td[,4],
+                       Friday = regs_td[,5],
+                       Saturday = regs_td[,6])
 
-my_regressors <- list( NoTuesday = regs_td[,1],
-                       Tuesday = regs_td[,2])
+# my_regressors <- list( NoTuesday = regs_td[,1],
+#                        Tuesday = regs_td[,2])
 
 my_context <- rjd3toolkit::modelling_context(variables = my_regressors)
 rjd3toolkit::.r2jd_modellingcontext(my_context)$getTsVariableDictionary()
@@ -289,7 +289,7 @@ sa_tramoseats_ud <- rjd3tramoseats::tramoseats(y_raw, tramoseats_spec_final, con
 
 # TRAMO-SEATS SUMMARY
 summary(sa_tramoseats_ud)
-str(sa_tramoseats_ud)
+# str(sa_tramoseats_ud)
 
 # OBTENER SERIES FINALES------
 str(sa_tramoseats_ud$result$final)
@@ -300,8 +300,13 @@ trend_ts <- sa_tramoseats_ud$result$final$t$data
 seasonal_component_ts <- sa_tramoseats_ud$result$final$s$data
 irregular_ts <- sa_tramoseats_ud$result$final$i$data
 
+
+# GRÁFICOS 
+
 plot(original_ts)
 plot(seasonally_adjusted_ts)
 plot(trend_ts)
 plot(seasonal_component_ts)
 plot(irregular_ts)
+
+# CUADRO S-I 
