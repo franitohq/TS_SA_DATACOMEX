@@ -332,8 +332,6 @@ tsibble_SI <- tsibble_SI |>
   mutate(Date = as.Date(index))
 
 # GRÁFICOS----- 
-
-
 # Define colors
 left_axis_color <- "black"  # Color for the left axis labels and ticks
 right_axis_color <- "black"  # Color for the right axis labels and ticks
@@ -341,8 +339,10 @@ right_axis_color <- "black"  # Color for the right axis labels and ticks
 # SERIE ORIGINAL-----
 y_max1 <- ceiling(max(abs(tsibble_o$value)))
 
+step = 
+
 plot1 <- ggplot(tsibble_o, aes(x = index, y = value)) +
-  geom_line(color = "darkblue", size = 0.5) +  
+  geom_line(color = "darkblue", linewidth = 0.5) +  
   labs(
     title = "Original Time Series",
     x = "Time",
@@ -353,8 +353,8 @@ plot1 <- ggplot(tsibble_o, aes(x = index, y = value)) +
     breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
   ) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max1, by = 100)),  # Add a secondary y-axis
-    breaks = seq(0, y_max1, by = 100)  # Add ticks every 100 units on the y-axis
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max1, by = 2000000000)),  # Add a secondary y-axis
+    breaks = seq(0, y_max1, by = 2000000000)  # Add ticks every 100 units on the y-axis
   ) +
   theme(
     plot.title = element_text(
@@ -386,8 +386,8 @@ plot2 <-ggplot(tsibble_sa, aes(x = index, y = value)) +
     breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
   ) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max2, by = 100)),  # Add a secondary y-axis
-    breaks = seq(0, y_max2, by = 100)  # Add ticks every 100 units on the y-axis
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max2, by = 2000000000)),  # Add a secondary y-axis
+    breaks = seq(0, y_max2, by = 2000000000)  # Add ticks every 100 units on the y-axis
   ) +
   theme(
     plot.title = element_text(
@@ -428,8 +428,8 @@ plot3 <-ggplot(tsibble_combined, aes(x = index, y = value, color = Series)) +
     breaks = seq(min(tsibble_combined$Date), max(tsibble_combined$Date), by = "2 year")  # Add ticks every year
   ) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max3, by = 100)),  # Add a secondary y-axis
-    breaks = seq(0, y_max3, by = 100)  # Add ticks every 100 units on the y-axis
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max3, by = 2000000000)),  # Add a secondary y-axis
+    breaks = seq(0, y_max3, by = 2000000000)  # Add ticks every 100 units on the y-axis
   ) +
   theme(
     plot.title = element_text(
@@ -461,8 +461,8 @@ plot4 <-ggplot(tsibble_t, aes(x = index, y = value)) +
     breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
   ) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max4, by = 100)),  # Add a secondary y-axis
-    breaks = seq(0, y_max4, by = 100)  # Add ticks every 100 units on the y-axis
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max4, by = 2000000000)),  # Add a secondary y-axis
+    breaks = seq(0, y_max4, by = 2000000000)  # Add ticks every 100 units on the y-axis
   ) +
   theme(
     plot.title = element_text(
@@ -485,7 +485,7 @@ y_max5 <- ceiling(max(abs(tsibble_sc$value)))
 plot5 <-ggplot(tsibble_sc, aes(x = index, y = value)) +
   geom_line(color = "black", size = 0.5) +  
   labs(
-    title = "Seasonally Adjusted Time Series",
+    title = "Seasonal Component Time Series",
     x = "Time",
     y = "Measured Quantity [units]"
   ) +
@@ -494,8 +494,8 @@ plot5 <-ggplot(tsibble_sc, aes(x = index, y = value)) +
     breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
   ) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max5, by = 0.1)),  # Add a secondary y-axis
-    breaks = seq(0, y_max5, by = 0.1)  # Add ticks every 100 units on the y-axis
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max5, by = 0.05)),  # Add a secondary y-axis
+    breaks = seq(0, y_max5, by = 0.05)  # Add ticks every 100 units on the y-axis
   ) +
   theme(
     plot.title = element_text(
@@ -518,7 +518,7 @@ y_max6 <- ceiling(max(abs(tsibble_i$value)))
 plot6 <-ggplot(tsibble_i, aes(x = index, y = value)) +
   geom_line(color = "red", size = 0.5) +  
   labs(
-    title = "Seasonally Adjusted Time Series",
+    title = "Irregular Component Time Series",
     x = "Time",
     y = "Measured Quantity [units]"
   ) +
@@ -527,8 +527,8 @@ plot6 <-ggplot(tsibble_i, aes(x = index, y = value)) +
     breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
   ) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max6, by = 0.025)),  # Add a secondary y-axis
-    breaks = seq(0, y_max6, by = 0.025)  # Add ticks every 100 units on the y-axis
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max6, by = 0.1)),  # Add a secondary y-axis
+    breaks = seq(0, y_max6, by = 0.1)  # Add ticks every 100 units on the y-axis
   ) +
   theme(
     plot.title = element_text(
@@ -695,4 +695,20 @@ print(combined_plot)
 
 # GUARDADO DE ARCHIVOS Y ORGANIZACIÓN DE RESULTADOS-----
 
-
+datacomex_E_raw
+ts_datacomex_E_0
+spanish_calendar
+regs_td
+my_regressors
+my_context
+core_tramoseats_spec
+tramoseats_spec1-5
+tramoseats_spec_final
+sa_tramoseats_ud
+original_ts 
+seasonally_adjusted_ts
+trend_ts 
+seasonal_component_ts 
+irregular_ts
+TV_original_ts
+TV_seasonally_adjusted_ts
