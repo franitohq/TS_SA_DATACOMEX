@@ -165,7 +165,7 @@ formatted_date <- format(current_date, "%d.%m.%Y")
 folder_name <- paste0("ANALISIS_", formatted_date)
 full_path <- file.path("output", folder_name)
 dir.create(full_path)
-# rm(list = ls())
+rm(list = ls())
 
 # CARGA DE DATOS CON DATACOMEX-----
 
@@ -194,7 +194,6 @@ ts_datacomex_E_0 <- stats::ts(datacomex_E_raw$euros,
 ts_datacomex_I_0 <- stats::ts(datacomex_I_raw$euros,
                               start = c(2010, 1),
                               frequency =12)
-
 ts_air <- ts_datacomex_E_0
 
 ts_df <- data.frame(Time = as.Date(as.yearmon(time(ts_air))), 
@@ -309,7 +308,6 @@ seasonal_component_ts <- sa_tramoseats_ud$result$final$s$data
 irregular_ts <- sa_tramoseats_ud$result$final$i$data
 SI_ts <- seasonal_component_ts*irregular_ts
 
-plot(original_ts)
 
 tsibble_o <- tsibble::as_tsibble(original_ts)
 tsibble_sa <- tsibble::as_tsibble(seasonally_adjusted_ts)
@@ -340,7 +338,8 @@ tsibble_SI <- tsibble_SI |>
 left_axis_color <- "black"  # Color for the left axis labels and ticks
 right_axis_color <- "black"  # Color for the right axis labels and ticks
 
-
+# SERIE ORIGINAL-----
+y_max1 <- ceiling(max(abs(tsibble_o$value)))
 
 plot1 <- ggplot(tsibble_o, aes(x = index, y = value)) +
   geom_line(color = "darkblue", size = 0.5) +  
@@ -354,8 +353,8 @@ plot1 <- ggplot(tsibble_o, aes(x = index, y = value)) +
     breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
   ) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, 700, by = 100)),  # Add a secondary y-axis
-    breaks = seq(0, 700, by = 100)  # Add ticks every 100 units on the y-axis
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max1, by = 100)),  # Add a secondary y-axis
+    breaks = seq(0, y_max1, by = 100)  # Add ticks every 100 units on the y-axis
   ) +
   theme(
     plot.title = element_text(
@@ -370,6 +369,11 @@ plot1 <- ggplot(tsibble_o, aes(x = index, y = value)) +
     axis.text.y.right = element_text(color = right_axis_color)
   )
 
+plot1
+
+# SERIE AJUSTADA ESTACIONALMENTE-----
+y_max2 <- ceiling(max(abs(tsibble_sa$value)))
+
 plot2 <-ggplot(tsibble_sa, aes(x = index, y = value)) +
   geom_line(color = "darkgreen", size = 0.5) +  
   labs(
@@ -382,8 +386,8 @@ plot2 <-ggplot(tsibble_sa, aes(x = index, y = value)) +
     breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
   ) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, 500, by = 100)),  # Add a secondary y-axis
-    breaks = seq(0, 500, by = 100)  # Add ticks every 100 units on the y-axis
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max2, by = 100)),  # Add a secondary y-axis
+    breaks = seq(0, y_max2, by = 100)  # Add ticks every 100 units on the y-axis
   ) +
   theme(
     plot.title = element_text(
@@ -398,11 +402,154 @@ plot2 <-ggplot(tsibble_sa, aes(x = index, y = value)) +
     axis.text.y.right = element_text(color = right_axis_color)
   )
 
+plot2
 
+# TENDENCIA Y SERIE AJUSTADA ESTACIONALMENTE-----
+# COMBINAMOS LA SERIE DE TENDENCIA Y LA AJUSTADA ESTACIONALMENTE
+tsibble_combined <- bind_rows(
+  tsibble_sa  |>  as_tibble()  |>  mutate(Series = "Seasonally Adjusted"),
+  tsibble_t  |>  as_tibble()  |>  mutate(Series = "Trend")
+)  |>  as_tsibble(index = index, key = Series) 
 
-combined_plot <- (plot1 | plot2) 
-  # (plot3 | plot4) /
-  # (plot5 | plot6)
+y_max3 <- ceiling(max(abs(tsibble_combined$value)))
+
+custom_colors <- c("Seasonally Adjusted" = "darkblue", "Trend" = "darkred")
+
+plot3 <-ggplot(tsibble_combined, aes(x = index, y = value, color = Series)) +
+  geom_line(size = 0.5) +  
+  scale_color_manual(values = custom_colors) +
+  labs(
+    title = "Trend and Seasonally Adjusted Series",
+    x = "Time",
+    y = "Measured Quantity [units]"
+  ) +
+  scale_x_yearmonth(
+    labels = scales::date_format(format = "%Y"),  # Format date labels as years
+    breaks = seq(min(tsibble_combined$Date), max(tsibble_combined$Date), by = "2 year")  # Add ticks every year
+  ) +
+  scale_y_continuous(
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max3, by = 100)),  # Add a secondary y-axis
+    breaks = seq(0, y_max3, by = 100)  # Add ticks every 100 units on the y-axis
+  ) +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5,           # Center the title
+      size = 13,             # Increase font size
+      face = "bold",         # Make the title bold
+      color = "black"     # Change title color
+    ),
+    axis.title.y.left = element_text(color = left_axis_color),  # Left axis color
+    axis.text.y.left = element_text(color = left_axis_color),
+    axis.title.y.right = element_text(color = right_axis_color),  # Right axis color
+    axis.text.y.right = element_text(color = right_axis_color)
+  )
+
+plot3
+
+# TENDENCIA-----
+y_max4 <- ceiling(max(abs(tsibble_t$value)))
+
+plot4 <-ggplot(tsibble_t, aes(x = index, y = value)) +
+  geom_line(color = "orange", size = 0.5) +  
+  labs(
+    title = "Trend Time Series",
+    x = "Time",
+    y = "Measured Quantity [units]"
+  ) +
+  scale_x_yearmonth(
+    labels = scales::date_format(format = "%Y"),  # Format date labels as years
+    breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
+  ) +
+  scale_y_continuous(
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max4, by = 100)),  # Add a secondary y-axis
+    breaks = seq(0, y_max4, by = 100)  # Add ticks every 100 units on the y-axis
+  ) +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5,           # Center the title
+      size = 13,             # Increase font size
+      face = "bold",         # Make the title bold
+      color = "black"     # Change title color
+    ),
+    axis.title.y.left = element_text(color = left_axis_color),  # Left axis color
+    axis.text.y.left = element_text(color = left_axis_color),
+    axis.title.y.right = element_text(color = right_axis_color),  # Right axis color
+    axis.text.y.right = element_text(color = right_axis_color)
+  )
+
+plot4
+
+# COMPONENTE ESTACIONAL-----
+y_max5 <- ceiling(max(abs(tsibble_sc$value)))
+
+plot5 <-ggplot(tsibble_sc, aes(x = index, y = value)) +
+  geom_line(color = "black", size = 0.5) +  
+  labs(
+    title = "Seasonally Adjusted Time Series",
+    x = "Time",
+    y = "Measured Quantity [units]"
+  ) +
+  scale_x_yearmonth(
+    labels = scales::date_format(format = "%Y"),  # Format date labels as years
+    breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
+  ) +
+  scale_y_continuous(
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max5, by = 0.1)),  # Add a secondary y-axis
+    breaks = seq(0, y_max5, by = 0.1)  # Add ticks every 100 units on the y-axis
+  ) +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5,           # Center the title
+      size = 13,             # Increase font size
+      face = "bold",         # Make the title bold
+      color = "black"     # Change title color
+    ),
+    axis.title.y.left = element_text(color = left_axis_color),  # Left axis color
+    axis.text.y.left = element_text(color = left_axis_color),
+    axis.title.y.right = element_text(color = right_axis_color),  # Right axis color
+    axis.text.y.right = element_text(color = right_axis_color)
+  )
+
+plot5
+
+# COMPONENTE IRREGULAR-----
+y_max6 <- ceiling(max(abs(tsibble_i$value)))
+
+plot6 <-ggplot(tsibble_i, aes(x = index, y = value)) +
+  geom_line(color = "red", size = 0.5) +  
+  labs(
+    title = "Seasonally Adjusted Time Series",
+    x = "Time",
+    y = "Measured Quantity [units]"
+  ) +
+  scale_x_yearmonth(
+    labels = scales::date_format(format = "%Y"),  # Format date labels as years
+    breaks = seq(min(tsibble_o$Date), max(tsibble_o$Date), by = "2 year")  # Add ticks every year
+  ) +
+  scale_y_continuous(
+    sec.axis = sec_axis(~ . * 1, name = "Measured Quantity [units]", breaks = seq(0, y_max6, by = 0.025)),  # Add a secondary y-axis
+    breaks = seq(0, y_max6, by = 0.025)  # Add ticks every 100 units on the y-axis
+  ) +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5,           # Center the title
+      size = 13,             # Increase font size
+      face = "bold",         # Make the title bold
+      color = "black"     # Change title color
+    ),
+    axis.title.y.left = element_text(color = left_axis_color),  # Left axis color
+    axis.text.y.left = element_text(color = left_axis_color),
+    axis.title.y.right = element_text(color = right_axis_color),  # Right axis color
+    axis.text.y.right = element_text(color = right_axis_color)
+  )
+
+plot6
+
+# GRAFICO COMBINADO-----
+combined_plot <- 
+  (plot1 | plot2) /
+  (plot3 | plot4) /
+  (plot5 | plot6)
 
 print(combined_plot)
 
@@ -423,9 +570,129 @@ feasts::gg_subseries(tsibble_SI_ts) +
                 title = "SI Chart")
 
 
+# TASAS DE VARIACION INTERANUALES DE LOS ÚLTIMOS 12 MESES-----
 
-# TASAS DE VARIACION-----
+last24_original_ts <- tail(original_ts, 24) 
+last24_seasonally_adjusted_ts <- tail(seasonally_adjusted_ts, 24)
+
+start_month <- "Diciembre" #El último mes de la serie
+months_spanish <- c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
+start_index <- which(months_spanish == start_month)
+
+if (start_index == 12) {
+  months_reverse <- months_spanish[12:1]
+} else {
+  months_reverse <- c(months_spanish[start_index:1], months_spanish[12:(start_index+1)])
+}
+
+# SERIE ORIGINAL
+df_original_ts <- data.frame(
+  Time = as.numeric(time(last24_original_ts)),  
+  as.data.frame(last24_original_ts)             
+)
+
+df_original_ts$Time <- 1:length(last24_original_ts)
+
+df_original_ts$x <- rev(df_original_ts$x) #ordenamos los valores de más reciente a más antiguo
+
+TV_original_ts <- data.frame(
+  Time = 1:12,
+  Value = (df_original_ts$x[1:12] / df_original_ts$x[13:24] - 1) * 100
+)
+
+TV_original_ts$Mes <- months_reverse
+TV_original_ts$Color <- ifelse(TV_original_ts$Value >= 0, "Positive", "Negative")
+TV_original_ts
+TV_original_ts <- TV_original_ts[nrow(TV_original_ts):1, ]
+TV_original_ts$Mes <- factor(TV_original_ts$Mes, levels = TV_original_ts$Mes)
+TV_original_ts
+
+y_max <- ceiling(max(abs(TV_original_ts$Value)))
+y_min <- -1*y_max
+
+plot7 <- ggplot(TV_original_ts, aes(x = Mes, y = Value, fill = Color)) +
+  geom_bar(stat = "identity", color = "black", alpha = 0.7) +  # Use stat = "identity" for bar graphs
+  scale_fill_manual(values = c("Positive" = "green", "Negative" = "red")) +  # Define colors
+  labs(
+    title = "Tasas de Variación Interanuales para Serie Original (últimos 12 meses)",
+    x = "Mes",
+    y = "Tasa de Variación Inrteranual (%)"
+  ) +
+  scale_y_continuous(
+    limits = c(y_min, y_max),  # Set primary y-axis limits
+    sec.axis = sec_axis(~ ., name = "Tasa de Variación Inrteranual (%)", breaks = seq(y_min, y_max, by = 5))  # Add secondary y-axis
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5,           # Center the title
+      size = 8,             # Increase font size
+      face = "bold",         # Make the title bold
+      color = "black"     # Change title color
+    ),
+    axis.text.x = element_text(angle = 45, 
+                               hjust = 1)
+  )  # Rotate x-axis labels for better readability
+
+plot7
 
 
-# GUARDADO DE ARCHIVOS Y ORGANIZACIÓN
+# SERIE DESESTACIONALIZADA
+df_seasonally_adjusted_ts <- data.frame(
+  Time = as.numeric(time(last24_seasonally_adjusted_ts)),  
+  as.data.frame(last24_seasonally_adjusted_ts)             
+)
+
+df_seasonally_adjusted_ts$Time <- 1:length(last24_seasonally_adjusted_ts)
+df_seasonally_adjusted_ts$x <- rev(df_seasonally_adjusted_ts$x)
+
+TV_seasonally_adjusted_ts <- data.frame(
+  Time = 1:12,
+  Value = (df_seasonally_adjusted_ts$x[1:12] / df_seasonally_adjusted_ts$x[13:24] - 1) * 100
+)
+
+TV_seasonally_adjusted_ts$Mes <- months_reverse
+TV_seasonally_adjusted_ts$Color <- ifelse(TV_seasonally_adjusted_ts$Value >= 0, "Positive", "Negative")
+TV_seasonally_adjusted_ts
+TV_seasonally_adjusted_ts <- TV_seasonally_adjusted_ts[nrow(TV_seasonally_adjusted_ts):1, ]
+TV_seasonally_adjusted_ts$Mes <- factor(TV_seasonally_adjusted_ts$Mes, levels = TV_seasonally_adjusted_ts$Mes)
+TV_seasonally_adjusted_ts
+
+
+y_max <- ceiling(max(abs(TV_seasonally_adjusted_ts$Value)))
+y_min <- -1*y_max
+
+plot8 <- ggplot(TV_seasonally_adjusted_ts, aes(x = Mes, y = Value, fill = Color)) +
+  geom_bar(stat = "identity", color = "black", alpha = 0.7) +  # Use stat = "identity" for bar graphs
+  scale_fill_manual(values = c("Positive" = "green", "Negative" = "red")) +  # Define colors
+  labs(
+    title = "Tasas de Variación Interanuales para Serie Desestacionalizada (últimos 12 meses)",
+    x = "Mes",
+    y = "Tasa de Variación Inrteranual (%)"
+  ) +
+  scale_y_continuous(
+    limits = c(y_min, y_max),  # Set primary y-axis limits
+    sec.axis = sec_axis(~ ., name = "Tasa de Variación Inrteranual (%)", breaks = seq(y_min, y_max, by = 5))  # Add secondary y-axis
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5,           # Center the title
+      size = 8,             # Increase font size
+      face = "bold",         # Make the title bold
+      color = "black"     # Change title color
+    ),
+    axis.text.x = element_text(angle = 45, 
+                               hjust = 1)
+    )  # Rotate x-axis labels for better readability
+
+plot8
+
+combined_plot <- (plot7/plot8) 
+
+print(combined_plot)
+
+# GUARDADO DE ARCHIVOS Y ORGANIZACIÓN DE RESULTADOS-----
+
 
