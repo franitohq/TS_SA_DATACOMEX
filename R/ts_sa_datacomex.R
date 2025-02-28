@@ -12,6 +12,7 @@
 # install.packages("scales")
 # remove.packages("patchwork")
 # install.packages("patchwork")
+# install.packages("tools")
 
 
 DATACOMEXR
@@ -92,6 +93,7 @@ library("lubridate")
 library("zoo")
 library("scales")
 library("patchwork")
+library("tools")
 
 # DATACOMEXR
 library("datacomexr")
@@ -161,7 +163,7 @@ library("broom") #PCA
 
 # CREAR ESTRUCTURA DE CARPETAS PARA GUARDAR LOS INPUTS Y OUTPUTS DE LOS ANALISIS-----
 current_date <- Sys.Date()
-formatted_date <- format(current_date, "%d.%m.%Y")
+formatted_date <- format(current_date, "%m.%Y")
 folder_name <- paste0("ANALISIS_", formatted_date)
 full_path <- file.path("output", folder_name)
 dir.create(full_path)
@@ -201,8 +203,9 @@ ts_df <- data.frame(Time = as.Date(as.yearmon(time(ts_air))),
                     )
 ts_df$Time <- format(ts_df$Time, "1.%m.%Y")
 
-xls_output_path <- file.path("output", folder_name, "ts_data.xlsx")
-openxlsx::write.xlsx(ts_df, file = xls_path, rowNames = FALSE)
+ts_data_name <- paste0("ts_data_", formatted_date, ".xlsx")
+xls_output_path <- file.path("output", folder_name, ts_data_name)
+openxlsx::write.xlsx(ts_df, file = xls_output_path, rowNames = FALSE)
 
 y_raw <- ts_air
 
@@ -339,7 +342,6 @@ right_axis_color <- "black"  # Color for the right axis labels and ticks
 # SERIE ORIGINAL-----
 y_max1 <- ceiling(max(abs(tsibble_o$value)))
 
-step = 
 
 plot1 <- ggplot(tsibble_o, aes(x = index, y = value)) +
   geom_line(color = "darkblue", linewidth = 0.5) +  
@@ -553,19 +555,120 @@ combined_plot <-
 
 print(combined_plot)
 
-# CUADRO S-I(REVISAR Y MODIFICAR FUNCION)-----
+# CUADRO S-I
+# CREAMOS EL DF DE LA COMPONENTE ESTACIONAL-----
+tsibble_sc
+
+tsibble_sc <- tsibble_sc |> 
+  mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE),
+         year = year(index))
+ 
+df_SC <- as.data.frame(tsibble_sc)
+
+df_SC <- df_SC |> 
+  select(year, month, value)
+
+df_SC$month <- df_SC$month  |> 
+  as.character()  |> 
+  toTitleCase()
+
+# ESTA PARTE DE CODIGO NO ES NECESARIA-----
+# monthly_series <- df |> 
+#   group_by(month) |> 
+#   group_split()
+# 
+# names(monthly_series) <- unique(tsibble_sc$month)
+# 
+# # Ensure each dataframe keeps only "year" and "value"
+# monthly_series <- lapply(monthly_series, function(df) {
+#   df |> select(year, value) 
+# })
+# 
+# monthly_series <- imap(monthly_series, function(df, month_name) {
+#   rename(df, !!month_name := value)
+# })
+# 
+# wide_df <- reduce(monthly_series, full_join, by = "year")
+# 
+# wide_df <- dplyr::arrange(wide_df, year)
+# 
+# print(wide_df)
+# 
+# long_df <- wide_df |> 
+#   pivot_longer(cols = starts_with("enero"):starts_with("diciembre"), 
+#                names_to = "month", 
+#                values_to = "value")
+
+# -----
+
+df_SC$month <- factor(df_SC$month, levels = c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                                        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"))
+monthly_avg_SC <- df_SC  |> 
+  group_by(month)  |> 
+  summarize(monthly_avg = mean(value, na.rm = TRUE))
 
 
-feasts::gg_subseries(tsibble_sa_ts) +
-  ggplot2::labs(y = "Units",
-                title = "Seasonally Adjusted Series")
+# CREAMOS EL DF DE LA COMPONENTE ESTACIONAL-IRREGULAR -----
+tsibble_SI
+
+tsibble_SI <- tsibble_SI |> 
+  mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE),
+         year = year(index))
+
+df_SI <- as.data.frame(tsibble_SI)
+
+df_SI <- df_SI |> 
+  select(year, month, value)
+
+df_SI$month <- df_SI$month  |> 
+  as.character()  |> 
+  toTitleCase()
 
 
-feasts::gg_subseries(tsibble_sc_ts) +
+df_SI$month <- factor(df_SI$month, levels = c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                                        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"))
+
+# CREAMOS EL GRAFICO S-I-----
+df_SC <- df_SC |> 
+  mutate(Series = "Componente Estacional")
+
+df_SI <- df_SI |> 
+  mutate(Series = "Estacional-Irregular")
+
+# Combine the two dataframes
+combined_df <- bind_rows(df_SC, df_SI)
+
+# Ensure that 'dataset' column is a factor with consistent levels
+combined_df$Series <- factor(combined_df$Series, levels = c("Componente Estacional", "Estacional-Irregular"))
+
+ggplot(combined_df, aes(x = year, y = value)) +
+  geom_line(aes(color = Series)) +  # Add line plot
+  facet_wrap(~month, scales = "fixed", ncol = 12) +  # Facet by month, fixed y-axis, 1x12 format
+  scale_x_continuous(breaks = seq(min(combined_df$year), max(combined_df$year), by = 5)) +  # Ticks every 5 years
+  labs(title = "Monthly Value Trends Over Years", 
+       x = "Year", 
+       y = "Value") +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 12, color = "black", face = "bold"),  # Bold and black title text
+    strip.background = element_rect(fill = "gray90", color = "gray50", linewidth = 1),  # Gray background for facet titles
+    panel.border = element_rect(color = "gray", fill = NA, linewidth = 1),  # Gray border around each subgraph
+    axis.text.x = element_text(angle = 45, hjust = 1),  # Angle x-axis labels for readability
+    panel.spacing = unit(1, "lines"),  # Space between facets
+    plot.title = element_text(hjust = 0.5)  # Center the main title
+  ) +
+  geom_hline(aes(yintercept = monthly_avg), data = monthly_avg_SC, color = "blue", linetype = "dashed") +
+  # geom_point( data = combined_df$df_SI, aes(x = year, y = value), color = "red", shape = 8, size = 3) +  # Add red asterisks for new data
+  # scale_color_manual(values = c("Componente Estacional" = "black"))
+  scale_color_manual(values = c("Componente Estacional" = "black", "Estacional-Irregular" = "red"))
+
+
+# ESTAS FUNCIONES YA ESTAN DISPONIBLES PERO NO SE PUEDEN USAR PARA SUPERPONER DOS SERIES COMO ES NECESARIO PARA EL GRAFICO S-I
+feasts::gg_subseries(tsibble_sc) +
   ggplot2::labs(y = "Units",
                 title = "Seasonal Component")
 
-feasts::gg_subseries(tsibble_SI_ts) +
+feasts::gg_subseries(tsibble_SI) +
   ggplot2::labs(y = "Units",
                 title = "SI Chart")
 
@@ -693,22 +796,27 @@ combined_plot <- (plot7/plot8)
 
 print(combined_plot)
 
-# GUARDADO DE ARCHIVOS Y ORGANIZACIÓN DE RESULTADOS-----
+# GUARDADO DE RESULTADOS-----
+data_file_name <- paste0("DATOS_ANALISIS_", formatted_date, ".RData")
+data_full_path <- file.path("output", folder_name, data_file_name)
 
-datacomex_E_raw
-ts_datacomex_E_0
-spanish_calendar
-regs_td
-my_regressors
-my_context
-core_tramoseats_spec
-tramoseats_spec1-5
-tramoseats_spec_final
-sa_tramoseats_ud
-original_ts 
-seasonally_adjusted_ts
-trend_ts 
-seasonal_component_ts 
-irregular_ts
-TV_original_ts
-TV_seasonally_adjusted_ts
+# datacomex_E_raw,
+# ts_datacomex_E_0,
+
+save(spanish_calendar,
+     regs_td,
+     my_regressors,
+     my_context,
+     core_tramoseats_spec,
+     tramoseats_spec_final,
+     sa_tramoseats_ud,
+     original_ts,
+     seasonally_adjusted_ts,
+     trend_ts,
+     seasonal_component_ts, 
+     irregular_ts,
+     TV_original_ts,
+     TV_seasonally_adjusted_ts,
+     file = data_full_path)
+
+

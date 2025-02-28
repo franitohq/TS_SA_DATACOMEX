@@ -1,0 +1,24 @@
+# ARCHIVOS EN SERVIDOR
+
+OPCIÓN 1: Guardar archivo con los datos de R y excel del analisis.
+Procesar la información de dicho archivo para elaborar informes y aplicaciones.
+
+OPCIÓN 2: Crear tablas con la infromacion de las series temporales seleccionadas 
+(original, desestacionalizada, tendencia, componente estacional, irregular), así
+como de sus revisiones.
+
+TABLA TS ORIGINAL:  COL0> tiempo (empieza en mas reciente o en mas antiguo?)
+                    COL2 > valores
+                    
+TABLA TS SA/SC/T/I:  COL0 tiempo (empieza en mas reciente o en mas antiguo?)
+                     COLt > valores revision t (ultima revision)
+                     COLt-1 > valores revision t-1 
+                     
+GRAFICOS APLICACION SHINY:
+
+X 6 SERIES PLOT 
+>>> S-I CHART
+X GROWTH RATES 12 LAST MONTHS
+>>> REVISIONS?
+
+>>> AUTOMATIZAR INFORME DE REVISION
