@@ -163,30 +163,57 @@ library("broom") #PCA
 
 # CREAMOS EL DIRECTORIO PARA GUARDAR LOS RESULTADOS-----
 current_date <- Sys.Date()
-formatted_date <- format(current_date, "%m.%Y")
-folder_name <- paste0("REVISION_", formatted_date)
-full_path <- file.path("output", folder_name)
-dir.create(full_path)
+current_formatted_date <- format(current_date, "%m.%Y")
+current_folder_name <- paste0("REVISION_", current_formatted_date)
+current_full_path <- file.path("output", current_folder_name)
+dir.create(current_full_path)
+
 # CARGAR DATOS DEL ANALISIS/REVISION ANTERIOR-----
+previous_date <- Sys.Date() - months(1)
+formatted_previous_date <- format(previous_date, "%m.%Y")
+previous_folder_name <- paste0("ANALISIS_", formatted_previous_date)
+previous_file_name <- paste0("DATOS_ANALISIS_", formatted_previous_date, ".RData")
+previous_full_path <- file.path("output", previous_folder_name,previous_file_name)
 
-
-current_date <- Sys.Date()
-formatted_date <- format(current_date, "%m.%Y")
-folder_name <- paste0("ANALISIS_", formatted_date)
-full_path <- file.path("output", folder_name)
-dir.create(full_path)
-
-
-
+load(file = previous_full_path)
 
 # CARGAR SERIES DATACOMEX ACTUALIZADAS-----
 
+datacomex_E_raw <- datacomexr::sec(flujo = "E", nivel=1, desde=2010, nocache = TRUE) |>
+  dplyr::group_by(year, mes, flujo) |>
+  dplyr::summarise(euros=sum(euros, na.rm=T)) |>
+  dplyr::select(year, mes, euros)
+
+ts_datacomex_E_0 <- stats::ts(datacomex_E_raw$euros,
+                              start = c(2010, 1),
+                              frequency =12)
+
+serie_actual_name <- paste0("y_", current_formatted_date)
+assign(serie_actual_name, ts_datacomex_E_0)
 
 
 # COMPROBAR SERIE ORIGINAL VS. SERIE ORIGINAL ACTUALIZADA-----
+serie_previa_name <- paste0("y_", formatted_previous_date)
+assign(serie_previa_name, original_ts)
+
+# QUITAMOS LA ULTIMA OBSERVACION DE LA SERIA ACTUALIZADA
 
 
+ts_ref <- eval(parse(text = serie_previa_name))
+current_ts_trimmed <- window(eval(parse(text = serie_actual_name)), 
+                             end = end(eval(parse(text = serie_actual_name))) - c(0, 1))
 
+ts_diferencia <- current_ts_trimmed - ts_ref
+
+test_nonzero <- any(ts_diferencia != 0) # TIENE QUE SALIR FALSE PARA QUE LAS SERIES SIN LA ULTIMA OBSERVACION COINCIDAN.
+
+test_nonzero
+
+if (any(ts_diferencia != 0)) {
+  stop("The difference series contains non-zero values. Program terminated.")
+}
+
+print("The difference series has no non-zero values. Continuing execution...")
 
 # ESPECIFICACIONES ANTERIORES
 current_result_spec <- sa_x13_ud$result_spec

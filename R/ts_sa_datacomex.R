@@ -252,6 +252,8 @@ my_regressors <- list( Monday = regs_td[,1],
 my_context <- rjd3toolkit::modelling_context(variables = my_regressors)
 rjd3toolkit::.r2jd_modellingcontext(my_context)$getTsVariableDictionary()
 
+
+
 core_tramoseats_spec <- rjd3tramoseats::tramoseats_spec("rsafull")
 str(core_tramoseats_spec)
 
@@ -299,7 +301,7 @@ sa_tramoseats_ud <- rjd3tramoseats::tramoseats(y_raw, tramoseats_spec_final, con
 
 # TRAMO-SEATS SUMMARY
 summary(sa_tramoseats_ud)
-# str(sa_tramoseats_ud)
+str(sa_tramoseats_ud)
 
 # OBTENER Y GUARDAR LAS ESPECIFICACIONES PARA LAS REVISIONES-----
 
@@ -830,4 +832,5 @@ save(spanish_calendar,
      file = data_full_path)
 
 
-load(file = data_full_path)
+# load(file = data_full_path)
+

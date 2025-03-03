@@ -12,6 +12,7 @@ nocite: |
 csl: data/american-mathematical-society.csl
 output-dir: output
 ---
+
 # 0.Resumen
 
 # 1.Introducción
