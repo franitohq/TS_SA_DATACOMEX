@@ -9,8 +9,13 @@
 # install.packages("writexl")  
 # install.packages("zoo")
 # install.packages("lubridate")
+# install.packages("scales")
+# remove.packages("patchwork")
+# install.packages("patchwork")
+# install.packages("tools")
 
-# DATACOMEXR
+
+DATACOMEXR
 # remotes::install_github("fabiansalazares/datacomexr")
 
 # GENERAL TSA
@@ -74,7 +79,6 @@
 # Análisis Multivariante
 # install.packages("broom")
 
-
 # Librerias Generales-----
 library("shiny")
 library("tidyverse")
@@ -87,6 +91,9 @@ library("rJava")
 library("openxlsx")
 library("lubridate")
 library("zoo")
+library("scales")
+library("patchwork")
+library("tools")
 
 # DATACOMEXR
 library("datacomexr")
@@ -154,49 +161,57 @@ library("broom") #PCA
 
 
 
-
-# RETRIEVING RESULTS SPECIFICATIONS-----
-summary(sa_tramoseats_ud$result_spec)
-str(sa_tramoseats_ud$result_spec)
-sa_tramoseats_ud$result_spec
-
-
-
-
+# CREAMOS EL DIRECTORIO PARA GUARDAR LOS RESULTADOS-----
+current_date <- Sys.Date()
+formatted_date <- format(current_date, "%m.%Y")
+folder_name <- paste0("REVISION_", formatted_date)
+full_path <- file.path("output", folder_name)
+dir.create(full_path)
+# CARGAR DATOS DEL ANALISIS/REVISION ANTERIOR-----
 
 
+current_date <- Sys.Date()
+formatted_date <- format(current_date, "%m.%Y")
+folder_name <- paste0("ANALISIS_", formatted_date)
+full_path <- file.path("output", folder_name)
+dir.create(full_path)
 
-# REVISIONS POLICY 17-1 (REVISE)-----
+
+
+
+# CARGAR SERIES DATACOMEX ACTUALIZADAS-----
+
+
+
+# COMPROBAR SERIE ORIGINAL VS. SERIE ORIGINAL ACTUALIZADA-----
+
+
+
+
+# ESPECIFICACIONES ANTERIORES
 current_result_spec <- sa_x13_ud$result_spec
 current_domain_spec <- sa_x13_ud$estimation_spec
 
-# generate NEW spec for refresh
-# tramo_refreshed_spec <- rjd3tramoseats::tramoseats_refresh(
-#   spec = current_result_spec, # point spec to be refreshed
-#   refspec = current_domain_spec, #domain spec (set of constraints)
-#   policy = "Outliers",
-#   period = 12, # monthly series
-#   start = c(2011, 1)
-# )
+# CREAR FECHA AUTOMATICA PARA LA DETECCION DE OUTLIERS----- 
 
-x13_refreshed_spec <- rjd3x13::x13_refresh(
+# GENERAR LA ESPECIFICACION PARA LA REVISION-----
+tramo_refreshed_spec <- rjd3tramoseats::tramoseats_refresh(
   spec = current_result_spec, # point spec to be refreshed
   refspec = current_domain_spec, #domain spec (set of constraints)
   policy = "Outliers",
-  period = 12, # monthly series
-  start = c(2016, 1)
+  period = 12, # Monthly series
+  start = c(2011, 1) #Date from which outliers will be re-detected
 )
 
-# sa_tramoseats_ud_17_1 <- rjd3tramoseats::tramoseats(y_17_1, tramo_refreshed_spec, context = my_context)
-sa_x13_ud_17_1 <- rjd3x13::x13(y_17_1, x13_refreshed_spec, context = my_context)
+# EJECUTAR LA REVISION DE LA SERIE ACTUALIZADA CON LA ESPECIFICACION ACTUALZIADA-----
+sa_tramoseats_ud_17_1 <- rjd3tramoseats::tramoseats(y_17_1, tramo_refreshed_spec, context = my_context)
 
 
-# CHECK THE OUTLIER SPAN WHICH SHOULD BE AS DEFINED AT end = above
+# COMPROBAR LA VENTANA DE DETECCION DE OUTLIERS QUE DEBERÍA SER LA ESPECIFICADA EN end = above-----
 sa_x13_ud$result_spec
 sa_x13_ud_17_1$result_spec
 sa_x13_ud_17_1$estimation_spec
 
-
-
-
-#CAMBIO DE PRUEBA PRIVADO
+# HISTORIAL DE REVISIONES
+# CARGA DATOS DE ANALISIS ANTERIORES PARA EL HISTORIAL-----
+# (5 ULTIMOS AÑOS + AÑO CORRIENTE)

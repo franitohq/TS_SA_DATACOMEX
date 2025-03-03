@@ -301,6 +301,15 @@ sa_tramoseats_ud <- rjd3tramoseats::tramoseats(y_raw, tramoseats_spec_final, con
 summary(sa_tramoseats_ud)
 # str(sa_tramoseats_ud)
 
+# OBTENER Y GUARDAR LAS ESPECIFICACIONES PARA LAS REVISIONES-----
+
+result_spec_name <- paste0("ANALISIS_", formatted_date, "_result_spec") 
+est_spec_name <- paste0("ANALISIS_", formatted_date, "_estimation_spec") 
+
+assign(result_spec_name, sa_tramoseats_ud$result_spec) 
+assign(est_spec_name, sa_tramoseats_ud$estimation_spec) 
+
+
 # OBTENER SERIES FINALES------
 str(sa_tramoseats_ud$result$final)
 
@@ -645,7 +654,7 @@ ggplot(combined_df, aes(x = year, y = value)) +
   geom_line(aes(color = Series)) +  # Add line plot
   facet_wrap(~month, scales = "fixed", ncol = 12) +  # Facet by month, fixed y-axis, 1x12 format
   scale_x_continuous(breaks = seq(min(combined_df$year), max(combined_df$year), by = 5)) +  # Ticks every 5 years
-  labs(title = "Monthly Value Trends Over Years", 
+  labs(title = "Gráfica S-I", 
        x = "Year", 
        y = "Value") +
   theme_minimal() +
@@ -810,6 +819,7 @@ save(spanish_calendar,
      core_tramoseats_spec,
      tramoseats_spec_final,
      sa_tramoseats_ud,
+     list = c(result_spec_name, est_spec_name),
      original_ts,
      seasonally_adjusted_ts,
      trend_ts,
@@ -820,3 +830,4 @@ save(spanish_calendar,
      file = data_full_path)
 
 
+load(file = data_full_path)
