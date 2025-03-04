@@ -161,7 +161,7 @@ library("broom") #PCA
 
 
 
-# CREAMOS EL DIRECTORIO PARA GUARDAR LOS RESULTADOS-----
+# CREAMOS EL DIRECTORIO PARA GUARDAR LOS RESULTADOS DE LA REVISION-----
 current_date <- Sys.Date()
 current_formatted_date <- format(current_date, "%m.%Y")
 current_folder_name <- paste0("REVISION_", current_formatted_date)
@@ -275,26 +275,64 @@ str(sa_tramoseats_ud_revised$result$final)
 
 # HISTORIAL DE REVISIONES
 # CARGA DATOS DE ANALISIS ANTERIORES PARA EL HISTORIAL-----
-# (5 ULTIMOS AÑOS + AÑO CORRIENTE)
+# (7 ULTIMOS AÑOS + AÑO CORRIENTE)
+
+
 
 # GRAFICOS DE LAS SERIES Y LAS TASAS DE VARIACION INTERANUALES-----
 
+# USAR UNA FUNCION QUE HAGA ESTOS GRAFICOS
 
 # GUARDADO DE DATOS DE LA REVISION Y EL HISTORIAL-----
 
+ts_df <- data.frame(Time = as.Date(as.yearmon(time(eval(parse(text = serie_previa_name))))), 
+                    Value = as.numeric(eval(parse(text = serie_previa_name))) 
+)
+ts_df$Time <- format(ts_df$Time, "1.%m.%Y")
+
+ts_data_name <- paste0("ts_data_rev_", formatted_date, ".xlsx")
+xls_output_path <- file.path("output", current_folder_name, ts_data_name)
+openxlsx::write.xlsx(ts_df, file = xls_output_path, rowNames = FALSE)
+
+
+data_file_name <- paste0("DATOS_REVISION_", formatted_date, ".RData")
+data_full_path <- file.path("output", current_folder_name, data_file_name)
+
+
 save(spanish_calendar,
-     regs_td,
-     my_regressors,
-     my_context,
-     core_tramoseats_spec,
-     tramoseats_spec_final,
-     sa_tramoseats_ud_revised,
-     list = c(rev_est_spec_name, rev_result_spec_name),
-     original_ts,
-     seasonally_adjusted_ts,
-     trend_ts,
-     seasonal_component_ts, 
-     irregular_ts,
-     TV_original_ts,
-     TV_seasonally_adjusted_ts,
+     list = c(regs_td_name,
+              my_regressors_name,
+              my_context_name,
+              tramoseats_spec_final_name,
+              sa_tramoseats_ud_name
+     ), 
+     list = c(result_spec_name, 
+              est_spec_name
+     ),
+     list = c(original_ts_name,
+              seasonally_adjusted_ts_name,
+              trend_ts_name,
+              seasonal_component_ts_name,
+              irregular_ts_name
+     ),
+     list = c(TV_original_ts_name,
+              TV_seasonally_adjusted_ts_name,
+     ),
      file = data_full_path)
+
+# save(spanish_calendar,
+#      regs_td,
+#      my_regressors,
+#      my_context,
+#      core_tramoseats_spec,
+#      tramoseats_spec_final,
+#      sa_tramoseats_ud_revised,
+#      list = c(rev_est_spec_name, rev_result_spec_name),
+#      original_ts,
+#      seasonally_adjusted_ts,
+#      trend_ts,
+#      seasonal_component_ts, 
+#      irregular_ts,
+#      TV_original_ts,
+#      TV_seasonally_adjusted_ts,
+#      file = data_full_path)

@@ -239,6 +239,9 @@ regs_td <- rjd3toolkit::calendar_td(
   contrasts = TRUE
 )
 
+regs_td_name <- paste0("regs_td_", formatted_date)
+assign(regs_td_name, regs_td)
+
 my_regressors <- list( Monday = regs_td[,1],
                        Tuesday = regs_td[,2],
                        Wednesday = regs_td[,3],
@@ -246,16 +249,23 @@ my_regressors <- list( Monday = regs_td[,1],
                        Friday = regs_td[,5],
                        Saturday = regs_td[,6])
 
+my_regressors_name <- paste0("my_regressors_", formatted_date)
+assign(my_regressors_name, my_regressors)
+
 # my_regressors <- list( NoTuesday = regs_td[,1],
 #                        Tuesday = regs_td[,2])
 
 my_context <- rjd3toolkit::modelling_context(variables = my_regressors)
 rjd3toolkit::.r2jd_modellingcontext(my_context)$getTsVariableDictionary()
 
-
+my_context_name <- paste0("my_context_", formatted_date)
+assign(my_context_name, my_context)
 
 core_tramoseats_spec <- rjd3tramoseats::tramoseats_spec("rsafull")
 str(core_tramoseats_spec)
+
+core_tramoseats_spec_name <- paste0("core_tramoseats_spec_", formatted_date)
+assign(core_tramoseats_spec_name, core_tramoseats_spec)
 
 tramoseats_spec1_estimate_default <- rjd3toolkit::set_estimate(core_tramoseats_spec,
                                                                tol = 0.0000001,
@@ -296,12 +306,19 @@ tramoseats_spec_final <- tramoseats_spec5_AUTO_OUTLIER
 tramoseats_spec_final$tramo$regression$td$users
 str(tramoseats_spec_final)
 
+tramoseats_spec_final_name <- paste0("tramoseats_spec_final_", formatted_date)
+assign(tramoseats_spec_final_name, tramoseats_spec_final)
+
 # EJECUCION DEL ANALISIS CON ESPECIFICACIONES SELECCIONADAS-----
 sa_tramoseats_ud <- rjd3tramoseats::tramoseats(y_raw, tramoseats_spec_final, context = my_context)
 
 # TRAMO-SEATS SUMMARY
 summary(sa_tramoseats_ud)
 str(sa_tramoseats_ud)
+
+sa_tramoseats_ud_name <- paste0("sa_tramoseats_ud_", formatted_date)
+assign(sa_tramoseats_ud_name, sa_tramoseats_ud)
+
 
 # OBTENER Y GUARDAR LAS ESPECIFICACIONES PARA LAS REVISIONES-----
 
@@ -314,6 +331,20 @@ assign(est_spec_name, sa_tramoseats_ud$estimation_spec)
 
 # OBTENER SERIES FINALES------
 str(sa_tramoseats_ud$result$final)
+
+original_ts_name <-             paste0("original_ts_", formatted_date) 
+seasonally_adjusted_ts_name <-  paste0("seasonally_adjusted_ts_", formatted_date) 
+trend_ts_name <-                paste0("trend_ts_", formatted_date) 
+seasonal_component_ts_name <-   paste0("seasonal_component_ts_", formatted_date) 
+irregular_ts_name <-            paste0("irregular_ts_", formatted_date)
+
+assign(original_ts_name, sa_tramoseats_ud$result$final$series$data) 
+assign(seasonally_adjusted_ts_name, sa_tramoseats_ud$result$final$sa$data) 
+assign(trend_ts_name, sa_tramoseats_ud$result$final$t$data) 
+assign(seasonal_component_ts_name, sa_tramoseats_ud$result$final$s$data) 
+assign(irregular_ts_name, sa_tramoseats_ud$result$final$i$data) 
+
+
 
 original_ts <- sa_tramoseats_ud$result$final$series$data
 seasonally_adjusted_ts <- sa_tramoseats_ud$result$final$sa$data
@@ -807,28 +838,36 @@ combined_plot <- (plot7/plot8)
 
 print(combined_plot)
 
+TV_original_ts_name <- paste0("TV_original_ts_", formatted_date) 
+TV_seasonally_adjusted_ts_name <- paste0("TV_seasonally_adjusted_ts_", formatted_date)
+
+assign(TV_original_ts_name, TV_original_ts) 
+assign(TV_seasonally_adjusted_ts_name, TV_seasonally_adjusted_ts) 
+
 # GUARDADO DE RESULTADOS-----
 data_file_name <- paste0("DATOS_ANALISIS_", formatted_date, ".RData")
 data_full_path <- file.path("output", folder_name, data_file_name)
 
-# datacomex_E_raw,
-# ts_datacomex_E_0,
 
 save(spanish_calendar,
-     regs_td,
-     my_regressors,
-     my_context,
-     core_tramoseats_spec,
-     tramoseats_spec_final,
-     sa_tramoseats_ud,
-     list = c(result_spec_name, est_spec_name),
-     original_ts,
-     seasonally_adjusted_ts,
-     trend_ts,
-     seasonal_component_ts, 
-     irregular_ts,
-     TV_original_ts,
-     TV_seasonally_adjusted_ts,
+     list = c(regs_td_name,
+              my_regressors_name,
+              my_context_name,
+              tramoseats_spec_final_name,
+              sa_tramoseats_ud_name
+              ), 
+     list = c(result_spec_name, 
+              est_spec_name
+              ),
+     list = c(original_ts_name,
+              seasonally_adjusted_ts_name,
+              trend_ts_name,
+              seasonal_component_ts_name,
+              irregular_ts_name
+              ),
+     list = c(TV_original_ts_name,
+              TV_seasonally_adjusted_ts_name,
+              ),
      file = data_full_path)
 
 
