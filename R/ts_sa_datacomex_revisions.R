@@ -167,10 +167,16 @@ current_formatted_date <- format(current_date, "%m.%Y")
 current_folder_name <- paste0("REVISION_", current_formatted_date)
 current_full_path <- file.path("output", current_folder_name)
 dir.create(current_full_path)
+current_year <- year(current_date)
+current_month <- month(current_date)
+current_year
+current_month
 
-# CARGAR DATOS DEL ANALISIS/REVISION ANTERIOR-----
+# CARGAR DATOS DEL ANALISIS/REVISION ANTERIOR (HACER PARA QUE COJA CARPETA DE ANALISIS O REVISION SEGUN CORRESPONDA)-----
+# HACER LA CARGA USANDO SIMPLEMNTE EL MES ANTERIOR, USAR UNA REGULAR EXPRESSION, QUE TERMINE EN "%m.%Y", ASI COGERA ANALISIS O REVISION INDISTINTAMENTE
 previous_date <- Sys.Date() - months(1)
 formatted_previous_date <- format(previous_date, "%m.%Y")
+# formatted_previous_date <- current_formatted_date
 previous_folder_name <- paste0("ANALISIS_", formatted_previous_date)
 previous_file_name <- paste0("DATOS_ANALISIS_", formatted_previous_date, ".RData")
 previous_full_path <- file.path("output", previous_folder_name,previous_file_name)
@@ -192,12 +198,12 @@ serie_actual_name <- paste0("y_", current_formatted_date)
 assign(serie_actual_name, ts_datacomex_E_0)
 
 
+
 # COMPROBAR SERIE ORIGINAL VS. SERIE ORIGINAL ACTUALIZADA-----
 serie_previa_name <- paste0("y_", formatted_previous_date)
 assign(serie_previa_name, original_ts)
 
-# QUITAMOS LA ULTIMA OBSERVACION DE LA SERIA ACTUALIZADA
-
+# QUITAMOS LA ULTIMA OBSERVACION DE LA SERIA ACTUALIZADA-----
 
 ts_ref <- eval(parse(text = serie_previa_name))
 current_ts_trimmed <- window(eval(parse(text = serie_actual_name)), 
@@ -215,30 +221,80 @@ if (any(ts_diferencia != 0)) {
 
 print("The difference series has no non-zero values. Continuing execution...")
 
-# ESPECIFICACIONES ANTERIORES
-current_result_spec <- sa_x13_ud$result_spec
-current_domain_spec <- sa_x13_ud$estimation_spec
+# ESPECIFICACIONES ANTERIORES-----
 
-# CREAR FECHA AUTOMATICA PARA LA DETECCION DE OUTLIERS----- 
+previous_est_spec_name <- paste0("ANALISIS_", formatted_previous_date, "_estimation_spec")
+previous_res_spec_name <- paste0("ANALISIS_", formatted_previous_date, "_result_spec")
 
-# GENERAR LA ESPECIFICACION PARA LA REVISION-----
-tramo_refreshed_spec <- rjd3tramoseats::tramoseats_refresh(
-  spec = current_result_spec, # point spec to be refreshed
-  refspec = current_domain_spec, #domain spec (set of constraints)
+previous_estimation_spec <- eval(parse(text = previous_est_spec_name))
+previous_result_spec <- eval(parse(text = previous_est_spec_name))
+
+
+# CREAR FECHA AUTOMATICA PARA LA RE-DETECCION DE OUTLIERS----- 
+
+outlier_detect_date <- Sys.Date() - months(12)
+outlier_detect_date <- as.Date(outlier_detect_date)
+year_outlier_detect <- year(outlier_detect_date)
+month_outlier_detect <- month(outlier_detect_date)
+year_outlier_detect 
+month_outlier_detect
+
+# GENERAR LA ESPECIFICACION PARA LA REVISION (VER QUE PASA CON LA VENTANA DE ESTIMACION DE OOUTLIERS)-----
+tramo_refreshed_current_spec <- rjd3tramoseats::tramoseats_refresh(
+  spec = previous_result_spec, # point spec to be refreshed
+  refspec = previous_estimation_spec, #domain spec (set of constraints)
   policy = "Outliers",
   period = 12, # Monthly series
-  start = c(2011, 1) #Date from which outliers will be re-detected
+  start = c(2023,1),
+  end = c(2024,12)
+  # start = c(year_outlier_detect, month_outlier_detect), #Date from which outliers will be re-detected
+  # end = c(current_year, current_month) 
 )
 
 # EJECUTAR LA REVISION DE LA SERIE ACTUALIZADA CON LA ESPECIFICACION ACTUALZIADA-----
-sa_tramoseats_ud_17_1 <- rjd3tramoseats::tramoseats(y_17_1, tramo_refreshed_spec, context = my_context)
+current_ts <- eval(parse(text = serie_actual_name))
+sa_tramoseats_ud_revised <- rjd3tramoseats::tramoseats(current_ts, tramo_refreshed_current_spec, context = my_context)
 
+sa_tramoseats_ud
+sa_tramoseats_ud_revised
 
-# COMPROBAR LA VENTANA DE DETECCION DE OUTLIERS QUE DEBERÍA SER LA ESPECIFICADA EN end = above-----
-sa_x13_ud$result_spec
-sa_x13_ud_17_1$result_spec
-sa_x13_ud_17_1$estimation_spec
+# COMPROBAR LA VENTANA DE DETECCION DE OUTLIERS QUE DEBERÍA SER LA ESPECIFICADA EN star = .....-----
+str(sa_tramoseats_ud_revised$estimation_spec)
+sa_tramoseats_ud_revised$estimation_spec
+str(sa_tramoseats_ud_revised$result_spec)
+sa_tramoseats_ud_revised$result_spec
+
+rev_est_spec_name <- paste0("REVISION_", current_formatted_date, "_estimation_spec") 
+rev_result_spec_name <- paste0("REVISION_", current_formatted_date, "_result_spec") 
+
+assign(rev_est_spec_name, sa_tramoseats_ud_revised$estimation_spec) 
+assign(rev_result_spec_name, sa_tramoseats_ud_revised$result_spec) 
+
+# OBTENER SERIES FINALES------
+str(sa_tramoseats_ud_revised$result$final)
 
 # HISTORIAL DE REVISIONES
 # CARGA DATOS DE ANALISIS ANTERIORES PARA EL HISTORIAL-----
 # (5 ULTIMOS AÑOS + AÑO CORRIENTE)
+
+# GRAFICOS DE LAS SERIES Y LAS TASAS DE VARIACION INTERANUALES-----
+
+
+# GUARDADO DE DATOS DE LA REVISION Y EL HISTORIAL-----
+
+save(spanish_calendar,
+     regs_td,
+     my_regressors,
+     my_context,
+     core_tramoseats_spec,
+     tramoseats_spec_final,
+     sa_tramoseats_ud_revised,
+     list = c(rev_est_spec_name, rev_result_spec_name),
+     original_ts,
+     seasonally_adjusted_ts,
+     trend_ts,
+     seasonal_component_ts, 
+     irregular_ts,
+     TV_original_ts,
+     TV_seasonally_adjusted_ts,
+     file = data_full_path)
