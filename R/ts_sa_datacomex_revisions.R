@@ -258,6 +258,9 @@ sa_tramoseats_ud_revised <- rjd3tramoseats::tramoseats(current_ts, tramo_refresh
 sa_tramoseats_ud
 sa_tramoseats_ud_revised
 
+sa_tramoseats_ud_revised_name <- paste0("sa_tramoseats_ud_REVISION_", current_formatted_date) 
+assign(sa_tramoseats_ud_revised_name, sa_tramoseats_ud_revised) 
+
 # COMPROBAR LA VENTANA DE DETECCION DE OUTLIERS QUE DEBERÍA SER LA ESPECIFICADA EN star = .....-----
 str(sa_tramoseats_ud_revised$estimation_spec)
 sa_tramoseats_ud_revised$estimation_spec
@@ -273,6 +276,19 @@ assign(rev_result_spec_name, sa_tramoseats_ud_revised$result_spec)
 # OBTENER SERIES FINALES------
 str(sa_tramoseats_ud_revised$result$final)
 
+rev_original_ts_name <- paste0("original_ts_REVISION_", current_formatted_date) 
+rev_seasonally_adjusted_ts_name <- paste0("seasonally_adjusted_ts_REVISION_", current_formatted_date) 
+rev_trend_ts_name <- paste0("trend_ts_REVISION_", current_formatted_date) 
+rev_seasonal_component_ts_name <- paste0("seasonal_component_ts_REVISION_", current_formatted_date) 
+rev_irregular_ts_name <- paste0("irregular_ts_REVISION_", current_formatted_date) 
+
+assign(rev_original_ts_name, sa_tramoseats_ud_revised$result$final$series$data) 
+assign(rev_seasonally_adjusted_ts_name, sa_tramoseats_ud_revised$result$final$sa$data) 
+assign(rev_trend_ts_name, sa_tramoseats_ud_revised$result$final$t$data) 
+assign(rev_seasonal_component_ts_name, sa_tramoseats_ud_revised$result$final$s$data) 
+assign(rev_irregular_ts_name, sa_tramoseats_ud_revised$result$final$i$data) 
+
+
 # HISTORIAL DE REVISIONES
 # CARGA DATOS DE ANALISIS ANTERIORES PARA EL HISTORIAL-----
 # (7 ULTIMOS AÑOS + AÑO CORRIENTE)
@@ -280,8 +296,7 @@ str(sa_tramoseats_ud_revised$result$final)
 
 
 # GRAFICOS DE LAS SERIES Y LAS TASAS DE VARIACION INTERANUALES-----
-
-# USAR UNA FUNCION QUE HAGA ESTOS GRAFICOS
+# USAR UNA FUNCION QUE HAGA LOS GRAFICOS
 
 # GUARDADO DE DATOS DE LA REVISION Y EL HISTORIAL-----
 
@@ -299,40 +314,37 @@ data_file_name <- paste0("DATOS_REVISION_", formatted_date, ".RData")
 data_full_path <- file.path("output", current_folder_name, data_file_name)
 
 
+
+
+save(spanish_calendar,
+     list = c(
+              sa_tramoseats_ud_revised_name,
+              rev_result_spec_name, 
+              rev_est_spec_name,
+              
+     ),
+     file = data_full_path)
+
+
 save(spanish_calendar,
      list = c(regs_td_name,
               my_regressors_name,
               my_context_name,
               tramoseats_spec_final_name,
-              sa_tramoseats_ud_name
-     ), 
-     list = c(result_spec_name, 
-              est_spec_name
-     ),
-     list = c(original_ts_name,
+              sa_tramoseats_ud_revised_name,
+              rev_result_spec_name, 
+              rev_est_spec_name,
+              original_ts_name,
               seasonally_adjusted_ts_name,
               trend_ts_name,
               seasonal_component_ts_name,
-              irregular_ts_name
-     ),
-     list = c(TV_original_ts_name,
-              TV_seasonally_adjusted_ts_name,
+              irregular_ts_name,
+              TV_original_ts_name,
+              TV_seasonally_adjusted_ts_name
      ),
      file = data_full_path)
 
-# save(spanish_calendar,
-#      regs_td,
-#      my_regressors,
-#      my_context,
-#      core_tramoseats_spec,
-#      tramoseats_spec_final,
-#      sa_tramoseats_ud_revised,
-#      list = c(rev_est_spec_name, rev_result_spec_name),
-#      original_ts,
-#      seasonally_adjusted_ts,
-#      trend_ts,
-#      seasonal_component_ts, 
-#      irregular_ts,
-#      TV_original_ts,
-#      TV_seasonally_adjusted_ts,
-#      file = data_full_path)
+
+
+
+

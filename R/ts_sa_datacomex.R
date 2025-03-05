@@ -15,7 +15,7 @@
 # install.packages("tools")
 
 
-DATACOMEXR
+
 # remotes::install_github("fabiansalazares/datacomexr")
 
 # GENERAL TSA
@@ -854,22 +854,38 @@ save(spanish_calendar,
               my_regressors_name,
               my_context_name,
               tramoseats_spec_final_name,
-              sa_tramoseats_ud_name
-              ), 
-     list = c(result_spec_name, 
-              est_spec_name
-              ),
-     list = c(original_ts_name,
+              sa_tramoseats_ud_name,
+              result_spec_name, 
+              est_spec_name,
+              original_ts_name,
               seasonally_adjusted_ts_name,
               trend_ts_name,
               seasonal_component_ts_name,
-              irregular_ts_name
-              ),
-     list = c(TV_original_ts_name,
-              TV_seasonally_adjusted_ts_name,
+              irregular_ts_name,
+              TV_original_ts_name,
+              TV_seasonally_adjusted_ts_name
               ),
      file = data_full_path)
 
 
-# load(file = data_full_path)
+# save(spanish_calendar,
+#      regs_td,
+#      my_regressors,
+#      my_context,
+#      core_tramoseats_spec,
+#      tramoseats_spec_final,
+#      sa_tramoseats_ud_revised,
+#      list = c(rev_est_spec_name, rev_result_spec_name),
+#      original_ts,
+#      seasonally_adjusted_ts,
+#      trend_ts,
+#      seasonal_component_ts,
+#      irregular_ts,
+#      TV_original_ts,
+#      TV_seasonally_adjusted_ts,
+#      file = data_full_path)
+
+
+
+load(file = data_full_path)
 
