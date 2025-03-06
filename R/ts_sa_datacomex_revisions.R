@@ -176,7 +176,7 @@ current_month
 # HACER LA CARGA USANDO SIMPLEMNTE EL MES ANTERIOR, USAR UNA REGULAR EXPRESSION, QUE TERMINE EN "%m.%Y", ASI COGERA ANALISIS O REVISION INDISTINTAMENTE
 previous_date <- Sys.Date() - months(1)
 formatted_previous_date <- format(previous_date, "%m.%Y")
-# formatted_previous_date <- current_formatted_date
+formatted_previous_date <- current_formatted_date
 previous_folder_name <- paste0("ANALISIS_", formatted_previous_date)
 previous_file_name <- paste0("DATOS_ANALISIS_", formatted_previous_date, ".RData")
 previous_full_path <- file.path("output", previous_folder_name,previous_file_name)
@@ -330,6 +330,7 @@ save(spanish_calendar,
      list = c(regs_td_name,
               my_regressors_name,
               my_context_name,
+              core_tramoseats_spec_name,
               tramoseats_spec_final_name,
               sa_tramoseats_ud_revised_name,
               rev_result_spec_name, 

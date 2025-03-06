@@ -2,12 +2,31 @@
 # TENEMOS LA POSIBILIDAD DE AJUSTAR LA FECHA DE INICIO DE LA SERIE SELECCIONADA:
 # start = c(YYYY, M) 
 # frequency = n (NUMERO DE PERIODOS EN UN AÑO, 12 para series mensuales, 4 para trimestrales, etc)
+# La función ejecuta el analisis estacional con el algoritmo TRAMO-SEATS en la implementación de RJDemetra+ v.3.
+# Las especificaciones de partida pueden consultarse en el cuerpo de la función que puede modificarse si se deasea.
+# No se ha incluido la opción de modificar estas especificaciones en los argumentos de la función por simplicidad y 
+# seguridad evitando que se modifique algún parametro por error y se realicen analisis con especificaciones diferentes sin darse cuenta.
+# El output de la funcion consta de lo siguiente:
+#   -Excel con la serie original analizada que puede importarse en la GUI de JDemetra+ para posteriores analisis.
+#   -Archivo de datos R que contine:  calendario, 
+#                                     regresores, 
+#                                     contexto, 
+#                                     especificacion inical y final para el analisis, 
+#                                     resultados del analisis,
+#                                     especificaciones para la revision,
+#                                     serie original,
+#                                     serie desestacionalizada,
+#                                     serie tendencia,  
+#                                     serie componente estacional,
+#                                     serie componente irregular.
+#   -Lista con las 5 series anteriores par su carga en servidor.
+# 
+# Los dos primeros elementos del output se guardar en una carpeta con el nombre: ANALISIS_%m.%Y
+  
 
-
-
-SA_analisis <- fucntion(ts_tibble, 
-                        start, 
-                        frequency)
+SA_analisis <- function(ts_tibble, 
+                        inicio, 
+                        freq)
 {
   # CREAR ESTRUCTURA DE CARPETAS PARA GUARDAR LOS INPUTS Y OUTPUTS DE LOS ANALISIS-----
   current_date <- Sys.Date()
@@ -19,8 +38,8 @@ SA_analisis <- fucntion(ts_tibble,
   # PREPARACIÓN DE LAS SERIES-----
   
   y_raw <- stats::ts(ts_tibble$euros,
-                     start = c(2010, 1),
-                     frequency =12)
+                     start = inicio,
+                     frequency = freq)
   
   
   
@@ -28,15 +47,15 @@ SA_analisis <- fucntion(ts_tibble,
   
   # CALENDARIO FIESTAS FIJAS NACIONALES
   spanish_calendar <- rjd3toolkit::national_calendar(days = list(
-    special_day('NEWYEAR'),
-    fixed_day(1,6), # Reyes Republicanos
-    special_day('MAYDAY'),
-    fixed_day(8,15), # Presunción de la "Virgen"
-    fixed_day(10,12), # Fiesta Nacional
-    special_day('ALLSAINTSDAY'),
-    fixed_day(12,6), # Día de la Prostitución Española
-    fixed_day(12,8), # Inmaculada Concepción
-    special_day('CHRISTMAS')
+    rjd3toolkit::special_day('NEWYEAR'),
+    rjd3toolkit::fixed_day(1,6), # Reyes Republicanos
+    rjd3toolkit::special_day('MAYDAY'),
+    rjd3toolkit::fixed_day(8,15), # Presunción de la "Virgen"
+    rjd3toolkit::fixed_day(10,12), # Fiesta Nacional
+    rjd3toolkit::special_day('ALLSAINTSDAY'),
+    rjd3toolkit::fixed_day(12,6), # Día de la Prostitución Española
+    rjd3toolkit::fixed_day(12,8), # Inmaculada Concepción
+    rjd3toolkit::special_day('CHRISTMAS')
   )
   )
   
@@ -162,6 +181,50 @@ SA_analisis <- fucntion(ts_tibble,
   trend_ts <- sa_tramoseats_ud$result$final$t$data
   seasonal_component_ts <- sa_tramoseats_ud$result$final$s$data
   irregular_ts <- sa_tramoseats_ud$result$final$i$data
-
   
-  return()} # OUTPUT: EXCEL CON SERIES, FICHERO R DE DATOS, 5 SERIES
+  
+  # GUARDADO DE RESULTADOS-----
+  # GUARDAMOS LA SERIE ANALIZADA COMO EXCEL POR SI ES NECESARIO USARLA EN LA GUI JDEMETRA+
+  ts_df <- data.frame(Time = as.Date(zoo::as.yearmon(time(y_raw))), 
+                      Value = as.numeric(y_raw) 
+                     )
+  ts_df$Time <- format(ts_df$Time, "1.%m.%Y")
+  
+  ts_data_name <- paste0("ts_raw_ANALISIS_", formatted_date, ".xlsx")
+  xls_output_path <- file.path("output", folder_name, ts_data_name)
+  openxlsx::write.xlsx(ts_df, file = xls_output_path, rowNames = FALSE)
+  
+  
+  data_file_name <- paste0("DATOS_ANALISIS_", formatted_date, ".RData")
+  data_full_path <- file.path("output", folder_name, data_file_name)
+  
+  
+  save(spanish_calendar,
+       list = c(regs_td_name,
+                my_regressors_name,
+                my_context_name,
+                core_tramoseats_spec_name,
+                tramoseats_spec_final_name,
+                sa_tramoseats_ud_name,
+                result_spec_name, 
+                est_spec_name,
+                original_ts_name,
+                seasonally_adjusted_ts_name,
+                trend_ts_name,
+                seasonal_component_ts_name,
+                irregular_ts_name
+       ),
+       file = data_full_path)
+  
+  ts_list_name <- paste0("ts_list_ANALISIS_", formatted_date) 
+  ts_list <-   list(original = original_ts,
+                    seasonally_adjusted =seasonally_adjusted_ts,
+                    trend = trend_ts,
+                    seasonal_component = seasonal_component_ts,
+                    irregular = irregular_ts)
+
+  assign(ts_list_name, ts_list)
+  
+  return(eval(parse(text = ts_list_name)))
+  
+  } # OUTPUT: EXCEL CON SERIES, FICHERO R DE DATOS, 5 SERIES

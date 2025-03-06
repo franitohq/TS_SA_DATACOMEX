@@ -167,7 +167,7 @@ formatted_date <- format(current_date, "%m.%Y")
 folder_name <- paste0("ANALISIS_", formatted_date)
 full_path <- file.path("output", folder_name)
 dir.create(full_path)
-rm(list = ls())
+# rm(list = ls())
 
 # CARGA DE DATOS CON DATACOMEX-----
 
@@ -198,7 +198,7 @@ ts_datacomex_I_0 <- stats::ts(datacomex_I_raw$euros,
                               frequency =12)
 ts_air <- ts_datacomex_E_0
 
-ts_df <- data.frame(Time = as.Date(as.yearmon(time(ts_air))), 
+ts_df <- data.frame(Time = as.Date(zoo::as.yearmon(time(ts_air))), 
                     Value = as.numeric(ts_air) 
                     )
 ts_df$Time <- format(ts_df$Time, "1.%m.%Y")
@@ -853,6 +853,7 @@ save(spanish_calendar,
      list = c(regs_td_name,
               my_regressors_name,
               my_context_name,
+              core_tramoseats_spec_name,
               tramoseats_spec_final_name,
               sa_tramoseats_ud_name,
               result_spec_name, 
