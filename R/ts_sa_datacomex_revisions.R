@@ -327,9 +327,7 @@ save(spanish_calendar,
               seasonally_adjusted_ts_name,
               trend_ts_name,
               seasonal_component_ts_name,
-              irregular_ts_name,
-              TV_original_ts_name,
-              TV_seasonally_adjusted_ts_name
+              irregular_ts_name
      ),
      file = data_full_path)
 
