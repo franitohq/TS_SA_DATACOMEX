@@ -314,18 +314,6 @@ data_file_name <- paste0("DATOS_REVISION_", formatted_date, ".RData")
 data_full_path <- file.path("output", current_folder_name, data_file_name)
 
 
-
-
-save(spanish_calendar,
-     list = c(
-              sa_tramoseats_ud_revised_name,
-              rev_result_spec_name, 
-              rev_est_spec_name,
-              
-     ),
-     file = data_full_path)
-
-
 save(spanish_calendar,
      list = c(regs_td_name,
               my_regressors_name,

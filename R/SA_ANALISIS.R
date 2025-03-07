@@ -227,4 +227,4 @@ SA_analisis <- function(ts_tibble,
   
   return(eval(parse(text = ts_list_name)))
   
-  } # OUTPUT: EXCEL CON SERIES, FICHERO R DE DATOS, 5 SERIES
+  } 
