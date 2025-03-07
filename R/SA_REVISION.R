@@ -6,14 +6,17 @@
 # Las especificaciones de partida pueden consultarse en el cuerpo de la función que puede modificarse si se deasea.
 # No se ha incluido la opción de modificar estas especificaciones en los argumentos de la función por simplicidad y 
 # seguridad evitando que se modifique algún parametro por error y se realicen analisis con especificaciones diferentes sin darse cuenta.
+# 
+
+
 # El output de la funcion consta de lo siguiente:
 #   -Excel con la serie original analizada que puede importarse en la GUI de JDemetra+ para posteriores analisis.
 #   -Archivo de datos R que contine:  calendario, 
 #                                     regresores, 
 #                                     contexto, 
-#                                     especificacion inical y final para el analisis, 
-#                                     resultados del analisis,
-#                                     especificaciones para la revision,
+#                                     especificacion inical y final del analisis anual, 
+#                                     especificacion inical y final de la revisión,
+#                                     resultados de la revision,
 #                                     serie original,
 #                                     serie desestacionalizada,
 #                                     serie tendencia,  

@@ -92,8 +92,7 @@ SA_analisis <- function(ts_tibble,
   assign(my_context_name, my_context)
   
   core_tramoseats_spec <- rjd3tramoseats::tramoseats_spec("rsafull")
-  # str(core_tramoseats_spec)
-  
+
   core_tramoseats_spec_name <- paste0("core_tramoseats_spec_", formatted_date)
   assign(core_tramoseats_spec_name, core_tramoseats_spec)
   
@@ -101,12 +100,10 @@ SA_analisis <- function(ts_tibble,
                                                                  tol = 0.0000001,
                                                                  exact.ml = TRUE,
                                                                  unit.root.limit = 0.96)
-  # str(tramoseats_spec1_estimate_default)
-  
+
   tramoseats_spec2_transform <- rjd3toolkit::set_transform(tramoseats_spec1_estimate_default,
                                                            fun = "Auto")
-  # str(tramoseats_spec2_transform)
-  
+
   
   tramoseats_spec3_TD_LY <- rjd3toolkit::set_tradingdays(tramoseats_spec2_transform,
                                                          option = "UserDefined",
@@ -115,27 +112,23 @@ SA_analisis <- function(ts_tibble,
                                                          test = "Joint_F",
                                                          automatic = "Unused",
                                                          leapyear = "LeapYear")
-  # str(tramoseats_spec3_TD_LY)
-  
+
   
   tramoseats_spec4_EASTER <- rjd3toolkit::set_easter(tramoseats_spec3_TD_LY,
                                                      enabled = "TRUE",
                                                      test = "Remove",
                                                      type =  "IncludeEasterMonday")
-  # str(tramoseats_spec4_EASTER)
-  
+
   tramoseats_spec5_AUTO_OUTLIER <- rjd3toolkit::set_outlier(tramoseats_spec4_EASTER,
                                                             span.type = "All",
                                                             outliers.type = c("AO", "LS", "TC", "SO"),
                                                             critical.value = 3.5)
-  # str(tramoseats_spec5_AUTO_OUTLIER)
-  
+
   tramoseats_spec_final <- tramoseats_spec5_AUTO_OUTLIER
   
   
   tramoseats_spec_final$tramo$regression$td$users
-  # str(tramoseats_spec_final)
-  
+
   tramoseats_spec_final_name <- paste0("tramoseats_spec_final_", formatted_date)
   assign(tramoseats_spec_final_name, tramoseats_spec_final)
   
@@ -145,9 +138,6 @@ SA_analisis <- function(ts_tibble,
   sa_tramoseats_ud <- rjd3tramoseats::tramoseats(y_raw, tramoseats_spec_final, context = my_context)
   
   # TRAMO-SEATS SUMMARY
-  # summary(sa_tramoseats_ud)
-  # str(sa_tramoseats_ud)
-  
   sa_tramoseats_ud_name <- paste0("sa_tramoseats_ud_", formatted_date)
   assign(sa_tramoseats_ud_name, sa_tramoseats_ud)
   
@@ -161,8 +151,7 @@ SA_analisis <- function(ts_tibble,
   assign(est_spec_name, sa_tramoseats_ud$estimation_spec) 
   
   # OBTENER SERIES FINALES------
-  # str(sa_tramoseats_ud$result$final)
-  
+
   original_ts_name <-             paste0("original_ts_", formatted_date) 
   seasonally_adjusted_ts_name <-  paste0("seasonally_adjusted_ts_", formatted_date) 
   trend_ts_name <-                paste0("trend_ts_", formatted_date) 
