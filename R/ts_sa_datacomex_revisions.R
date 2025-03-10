@@ -261,7 +261,8 @@ sa_tramoseats_ud_revised
 sa_tramoseats_ud_revised_name <- paste0("sa_tramoseats_ud_REVISION_", current_formatted_date) 
 assign(sa_tramoseats_ud_revised_name, sa_tramoseats_ud_revised) 
 
-# COMPROBAR LA VENTANA DE DETECCION DE OUTLIERS QUE DEBERÍA SER LA ESPECIFICADA EN star = .....-----
+# GUARDAR LAS ESPECIFICACIONES D ELA REVISION-----
+# COMPROBAR LA VENTANA DE DETECCION DE OUTLIERS QUE DEBERÍA SER LA ESPECIFICADA EN star = .....
 str(sa_tramoseats_ud_revised$estimation_spec)
 sa_tramoseats_ud_revised$estimation_spec
 str(sa_tramoseats_ud_revised$result_spec)

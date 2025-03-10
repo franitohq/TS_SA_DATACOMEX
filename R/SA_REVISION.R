@@ -43,7 +43,7 @@ SA_revision <- function(ts_tibble,
   # CARGAR DATOS DEL ANALISIS/REVISION ANTERIOR-----
   previous_date <- Sys.Date() - months(1)
   formatted_previous_date <- format(previous_date, "%m.%Y")
-  formatted_previous_date <- current_formatted_date
+  # formatted_previous_date <- current_formatted_date
   
   # HABRÁ MESES EN LOS QUE EL MES ANTERIOR SE HAYA HECHO UNA REVISION Y OTROS UN ANALISIS. 
   # AL TENER DIFERENTES NOMBRES EN CADA CASO LAS CARPETAS Y FICHEROS  NECESITAMOS 
@@ -59,8 +59,179 @@ SA_revision <- function(ts_tibble,
   matching_files <- list.files(matching_folder, pattern = paste0(file_ending, "$"), full.names = TRUE)
   data_file_name <- basename(matching_files)
   previous_full_path <- file.path(matching_folder, data_file_name)
+  
   load(file = previous_full_path)
   
+  # PREPARACIÓN DE LAS SERIES-----
+
+  y_raw <- stats::ts(datacomex_E_raw$euros,
+                     start = c(2010, 1),
+                     frequency = 12)
+  
+  # y_raw <- stats::ts(ts_tibble$euros,
+  #                    start = inicio,
+  #                    frequency = freq)
+  
+  
+  
+  serie_actual_name <- paste0("original_ts_", current_formatted_date)
+  assign(serie_actual_name, y_raw)
+  
+  # COMPROBAR SERIE ORIGINAL VS. SERIE ORIGINAL ACTUALIZADA-----
+  serie_previa_name <- paste0("original_ts_", formatted_previous_date)
+  
+  
+# QUITAMOS LA ULTIMA OBSERVACION DE LA SERIA ACTUALIZADA (METER UN TARGET)-----
+  
+  ts_ref <- eval(parse(text = serie_previa_name))
+  current_ts_trimmed <- window(eval(parse(text = serie_actual_name)), 
+                               end = end(eval(parse(text = serie_actual_name))) - c(0, 1))
+  
+  ts_diferencia <- current_ts_trimmed - ts_ref
+  
+  test_nonzero <- any(ts_diferencia != 0) # TIENE QUE SALIR FALSE PARA QUE LAS SERIES SIN LA ULTIMA OBSERVACION COINCIDAN.
+  
+  test_nonzero
+  
+  if (any(ts_diferencia != 0)) {
+    stop("The difference series contains non-zero values. Program terminated.")
+  }
+  
+  print("The difference series has no non-zero values. Continuing execution...")
+  
+  
+  # ESPECIFICACIONES ANTERIORES-----
+  
+  all_objects <- ls()
+  
+  previous_est_spec_name <- paste0(formatted_previous_date, "_estimation_spec", "$")
+  previous_est_spec_name_files <- all_objects[grep(paste0(previous_est_spec_name, "$"), all_objects)]
+  
+  previous_res_spec_name <- paste0(formatted_previous_date, "_result_spec", "$")
+  previous_res_spec_name_files <- all_objects[grep(paste0(previous_res_spec_name, "$"), all_objects)]
+  
+  
+  previous_estimation_spec <- eval(parse(text = previous_est_spec_name_files))
+  previous_result_spec <- eval(parse(text = previous_res_spec_name_files))
+  
+  
+  # CREAR FECHA AUTOMATICA PARA LA RE-DETECCION DE OUTLIERS (REVISAR EL PROGRAMA VS WEBINAR Y ESCRIBIR A ANNA SMYK)----- 
+  
+  # outlier_detect_date <- Sys.Date() - months(12)
+  # outlier_detect_date <- as.Date(outlier_detect_date)
+  # year_outlier_detect <- year(outlier_detect_date)
+  # month_outlier_detect <- month(outlier_detect_date)
+  # year_outlier_detect 
+  # month_outlier_detect
+  
+  
+  # GENERAR LA ESPECIFICACION PARA LA REVISION (VER QUE PASA CON LA VENTANA DE ESTIMACION DE OOUTLIERS)-----
+  tramo_refreshed_current_spec <- rjd3tramoseats::tramoseats_refresh(
+    spec = previous_result_spec, # point spec to be refreshed
+    refspec = previous_estimation_spec, #domain spec (set of constraints)
+    policy = "Outliers",
+    period = 12, # Monthly series
+    start = c(2023,1)
+    # start = c(year_outlier_detect, month_outlier_detect), #Date from which outliers will be re-detected
+    # end = c(current_year, current_month) 
+  )
+  
+  
+  
+  # EJECUTAR LA REVISION DE LA SERIE ACTUALIZADA CON LA ESPECIFICACION ACTUALZIADA-----
+  current_ts <- eval(parse(text = serie_actual_name))
+  
+  my_context_name <- paste0("my_context_", formatted_previous_date)
+  my_context <- eval(parse(text = my_context_name))
+  
+
+  sa_tramoseats_ud_revised <- rjd3tramoseats::tramoseats(current_ts, tramo_refreshed_current_spec, context = my_context)
+  
+  
+  sa_tramoseats_ud_revised_name <- paste0("sa_tramoseats_ud_REVISION_", current_formatted_date) 
+  assign(sa_tramoseats_ud_revised_name, sa_tramoseats_ud_revised) 
+  
+  
+  # GUARDAR LAS ESPECIFICACIONES D ELA REVISION-----
+  # COMPROBAR LA VENTANA DE DETECCION DE OUTLIERS QUE DEBERÍA SER LA ESPECIFICADA EN star = .....
+  
+  rev_est_spec_name <- paste0("REVISION_", current_formatted_date, "_estimation_spec") 
+  rev_result_spec_name <- paste0("REVISION_", current_formatted_date, "_result_spec") 
+  
+  assign(rev_est_spec_name, sa_tramoseats_ud_revised$estimation_spec) 
+  assign(rev_result_spec_name, sa_tramoseats_ud_revised$result_spec) 
+  
+  
+  
+  # OBTENER SERIES FINALES------
+  str(sa_tramoseats_ud_revised$result$final)
+  
+  rev_original_ts_name <- paste0("original_ts_REVISION_", current_formatted_date) 
+  rev_seasonally_adjusted_ts_name <- paste0("seasonally_adjusted_ts_REVISION_", current_formatted_date) 
+  rev_trend_ts_name <- paste0("trend_ts_REVISION_", current_formatted_date) 
+  rev_seasonal_component_ts_name <- paste0("seasonal_component_ts_REVISION_", current_formatted_date) 
+  rev_irregular_ts_name <- paste0("irregular_ts_REVISION_", current_formatted_date) 
+  
+  assign(rev_original_ts_name, sa_tramoseats_ud_revised$result$final$series$data) 
+  assign(rev_seasonally_adjusted_ts_name, sa_tramoseats_ud_revised$result$final$sa$data) 
+  assign(rev_trend_ts_name, sa_tramoseats_ud_revised$result$final$t$data) 
+  assign(rev_seasonal_component_ts_name, sa_tramoseats_ud_revised$result$final$s$data) 
+  assign(rev_irregular_ts_name, sa_tramoseats_ud_revised$result$final$i$data) 
+  
+  original_ts             <- sa_tramoseats_ud_revised$result$final$series$data
+  seasonally_adjusted_ts  <- sa_tramoseats_ud_revised$result$final$sa$data
+  trend_ts                <- sa_tramoseats_ud_revised$result$final$t$data
+  seasonal_component_ts   <- sa_tramoseats_ud_revised$result$final$s$data
+  irregular_ts            <- sa_tramoseats_ud_revised$result$final$i$data
+
+  
+  
+  # GUARDADO DE RESULTADOS-----
+  # GUARDAMOS LA SERIE ANALIZADA COMO EXCEL POR SI ES NECESARIO USARLA EN LA GUI JDEMETRA+
+  ts_df <- data.frame(Time = as.Date(zoo::as.yearmon(time(y_raw))), 
+                      Value = as.numeric(y_raw) 
+  )
+  ts_df$Time <- format(ts_df$Time, "1.%m.%Y")
+  
+  ts_data_name <- paste0("ts_raw_REVISION_", current_formatted_date, ".xlsx")
+  xls_output_path <- file.path("output", current_folder_name, ts_data_name)
+  openxlsx::write.xlsx(ts_df, file = xls_output_path, rowNames = FALSE)
+  
+  
+  data_file_name <- paste0("DATOS_REVISION_", current_formatted_date, ".RData")
+  data_full_path <- file.path("output", current_folder_name, data_file_name)
+  
+  # ALGUNOS OBJETOS SE GENERAN ÚNICAMENTE EN EL ANALISIS PERO CONVIENE TENERLOS SIEMPRE DISPONIBLES PARA
+  # REALIZAR CONSULTAS, COMPROBACIONES, O CÁLCULOS. SUS NOMBRES SE IRÁN ACTUALIZANDO DE TAL FORMA QUE LA FECHA
+  # SIEMPRE QUEDE ACTUALIZADA Y SE IRAN GUARDANDO DE UNA REVISIÓN A OTRA.
+  
+  save(spanish_calendar,
+       list = c(regs_td_name,
+                my_regressors_name,
+                my_context_name,
+                core_tramoseats_spec_name,
+                tramoseats_spec_final_name,
+                sa_tramoseats_ud_name,
+                result_spec_name, 
+                est_spec_name,
+                original_ts_name,
+                seasonally_adjusted_ts_name,
+                trend_ts_name,
+                seasonal_component_ts_name,
+                irregular_ts_name
+       ),
+       file = data_full_path)
+  
+  ts_list_name <- paste0("ts_list_REVISION_", current_formatted_date) 
+  ts_list <-   list(original = original_ts,
+                    seasonally_adjusted =seasonally_adjusted_ts,
+                    trend = trend_ts,
+                    seasonal_component = seasonal_component_ts,
+                    irregular = irregular_ts)
+  
+  assign(ts_list_name, ts_list)
+  
+  return(eval(parse(text = ts_list_name)))
   
   
 } 

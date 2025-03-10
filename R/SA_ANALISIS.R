@@ -138,7 +138,7 @@ SA_analisis <- function(ts_tibble,
   sa_tramoseats_ud <- rjd3tramoseats::tramoseats(y_raw, tramoseats_spec_final, context = my_context)
   
   # TRAMO-SEATS SUMMARY
-  sa_tramoseats_ud_name <- paste0("sa_tramoseats_ud_", formatted_date)
+  sa_tramoseats_ud_name <- paste0("sa_tramoseats_ud_ANALISIS_", formatted_date)
   assign(sa_tramoseats_ud_name, sa_tramoseats_ud)
   
   
@@ -165,11 +165,11 @@ SA_analisis <- function(ts_tibble,
   assign(irregular_ts_name, sa_tramoseats_ud$result$final$i$data) 
   
   
-  original_ts <- sa_tramoseats_ud$result$final$series$data
-  seasonally_adjusted_ts <- sa_tramoseats_ud$result$final$sa$data
-  trend_ts <- sa_tramoseats_ud$result$final$t$data
-  seasonal_component_ts <- sa_tramoseats_ud$result$final$s$data
-  irregular_ts <- sa_tramoseats_ud$result$final$i$data
+  original_ts             <- sa_tramoseats_ud$result$final$series$data
+  seasonally_adjusted_ts  <- sa_tramoseats_ud$result$final$sa$data
+  trend_ts                <- sa_tramoseats_ud$result$final$t$data
+  seasonal_component_ts   <- sa_tramoseats_ud$result$final$s$data
+  irregular_ts            <- sa_tramoseats_ud$result$final$i$data
   
   
   # GUARDADO DE RESULTADOS-----
