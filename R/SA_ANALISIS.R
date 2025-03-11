@@ -21,7 +21,7 @@
 #                                     serie componente irregular.
 #   -Lista con las 5 series anteriores par su carga en servidor.
 # 
-# Los dos primeros elementos del output se guardar en una carpeta con el nombre: ANALISIS_%m.%Y
+# Los dos primeros elementos del output se guardan en una carpeta con el nombre: ANALISIS_%m.%Y
   
 
 SA_analisis <- function(ts_tibble, 
@@ -138,7 +138,7 @@ SA_analisis <- function(ts_tibble,
   sa_tramoseats_ud <- rjd3tramoseats::tramoseats(y_raw, tramoseats_spec_final, context = my_context)
   
   # TRAMO-SEATS SUMMARY
-  sa_tramoseats_ud_name <- paste0("sa_tramoseats_ud_ANALISIS_", formatted_date)
+  sa_tramoseats_ud_name <- paste0("ANALISIS_sa_tramoseats_ud_", formatted_date)
   assign(sa_tramoseats_ud_name, sa_tramoseats_ud)
   
   
@@ -152,11 +152,11 @@ SA_analisis <- function(ts_tibble,
   
   # OBTENER SERIES FINALES------
 
-  original_ts_name <-             paste0("original_ts_", formatted_date) 
-  seasonally_adjusted_ts_name <-  paste0("seasonally_adjusted_ts_", formatted_date) 
-  trend_ts_name <-                paste0("trend_ts_", formatted_date) 
-  seasonal_component_ts_name <-   paste0("seasonal_component_ts_", formatted_date) 
-  irregular_ts_name <-            paste0("irregular_ts_", formatted_date)
+  original_ts_name <-             paste0("ANALISIS_original_ts_", formatted_date) 
+  seasonally_adjusted_ts_name <-  paste0("ANALISIS_seasonally_adjusted_ts_", formatted_date) 
+  trend_ts_name <-                paste0("ANALISIS_trend_ts_", formatted_date) 
+  seasonal_component_ts_name <-   paste0("ANALISIS_seasonal_component_ts_", formatted_date) 
+  irregular_ts_name <-            paste0("ANALISIS_irregular_ts_", formatted_date)
   
   assign(original_ts_name, sa_tramoseats_ud$result$final$series$data) 
   assign(seasonally_adjusted_ts_name, sa_tramoseats_ud$result$final$sa$data) 

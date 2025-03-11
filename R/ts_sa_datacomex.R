@@ -167,11 +167,11 @@ formatted_date <- format(current_date, "%m.%Y")
 folder_name <- paste0("ANALISIS_", formatted_date)
 full_path <- file.path("output", folder_name)
 dir.create(full_path)
-# rm(list = ls())
+rm(list = ls())
 
 # CARGA DE DATOS CON DATACOMEX-----
 
-datacomex_E_raw <- datacomexr::sec(flujo = "E", nivel=1, desde=2010, nocache = TRUE) |>
+datacomex_E_raw <- datacomexr::sec(flujo = "E", nivel=1, desde=1995, nocache = TRUE) |>
   dplyr::group_by(year, mes, flujo) |>
   dplyr::summarise(euros=sum(euros, na.rm=T)) |>
   dplyr::select(year, mes, euros)
@@ -185,12 +185,12 @@ datacomex_I_raw <- datacomexr::sec(flujo = "I", nivel=1, desde=2010, nocache = T
 
 
 
-ts_air <- AirPassengers
+# ts_air <- AirPassengers
 
 # PREPARACIÓN DE LAS SERIES-----
 
 ts_datacomex_E_0 <- stats::ts(datacomex_E_raw$euros,
-                              start = c(2010, 1),
+                              start = c(1995, 1),
                               frequency =12)
 
 ts_datacomex_I_0 <- stats::ts(datacomex_I_raw$euros,
@@ -208,7 +208,7 @@ xls_output_path <- file.path("output", folder_name, ts_data_name)
 openxlsx::write.xlsx(ts_df, file = xls_output_path, rowNames = FALSE)
 
 y_raw <- ts_air
-
+# plot(y_raw)
 
 # ESPECIFICACIONES PARA EL ANALISIS-----
 
@@ -720,7 +720,7 @@ feasts::gg_subseries(tsibble_SI) +
 last24_original_ts <- tail(original_ts, 24) 
 last24_seasonally_adjusted_ts <- tail(seasonally_adjusted_ts, 24)
 
-start_month <- "Diciembre" #El último mes de la serie
+start_month <- "Enero" #El último mes de la serie
 months_spanish <- c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
                     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
 start_index <- which(months_spanish == start_month)
@@ -845,7 +845,7 @@ assign(TV_original_ts_name, TV_original_ts)
 assign(TV_seasonally_adjusted_ts_name, TV_seasonally_adjusted_ts) 
 
 # GUARDADO DE RESULTADOS-----
-data_file_name <- paste0("DATOS_ANALISIS_", formatted_date, ".RData")
+data_file_name <- paste0("DATOS_ANALISIS_95-25_", formatted_date, ".RData")
 data_full_path <- file.path("output", folder_name, data_file_name)
 
 

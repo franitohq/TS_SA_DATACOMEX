@@ -31,7 +31,7 @@ La política general de ajuste estacional consistirá en lo siguiente:
 
 2.3. Se realizarán revisiones mensuales automatizadas cuando se reciban los últimos datos provisionales de la AEAT.
 
-2.4. Las revisiones mensuales consistirán en una reestimación de parámeteros y en la revisión de los outliers en los últimos 12 meses. Se generará un informe de revisión automatizado en el que se recojan los resultados de la revisión.
+2.4. Las revisiones mensuales consistirán en una reestimación de parámeteros y en la revisión de los outliers en los últimos 12 meses. 
 
 En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 
@@ -39,9 +39,10 @@ En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 
 3.1. En los ajustes estacionales anuales y las revisiones mensuales se usarán las rutinas automáticas implementadas en RJDemetra+ v.3 (rjd3 [@rjdverse]). Éste paquete aún se encuentra en desarrollo lo que pude resultar en ajustes a la metodología a medida que se vayan estabilizando las versiones y funcionalidades. Todos los cambios realizados se recogerán en este documento.
 
-3.2. El ajuste anual manual se llevará a cabo con el programa JDemetra+ v.2.2.5 .
+3.2. El ajuste anual manual se llevará a cabo con el programa JDemetra+ v.2.2.5 y/o con el software R y los paquetes necesarios, en cualquier caso se documentarán
+el software y los paquetes utilizados.
 
-3.3. En todo caso, el algoritmo que se utilizará para los análisis será TRAMO (incluido en TRAMO-SEATS). La especificación por defecto para la ejecución de TRAMO-SEATS será "RSAFull". Para una descripción más detallada de las especificaciones ver "Practical Guide to Seasonal Adjustment with JDemetra+" [@GuideSAJDemetra2020].
+3.3. El algoritmo automatizado que se utilizará para los análisis y revisiones será TRAMO (incluido en TRAMO-SEATS). La especificación por defecto para la ejecución de TRAMO-SEATS será "RSAFull". Para una descripción más detallada de las especificaciones ver "Practical Guide to Seasonal Adjustment with JDemetra+" [@GuideSAJDemetra2020].
 
 3.4. A las especificaciones anteriores se añadirá el calendario de fiestas nacionales fijas que comprende los días siguientes:
 
@@ -57,7 +58,7 @@ En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 -25 de diciembre, Navidad.
 ```
 
-3.5. Para el efecto de días laborables (trading-days) se usarán 6 regresores. Esta opción puede elegirse dentro de las especificaciones de RSAFull o ser añadida manualmente. Para más detalles sobre este punto ver el capítulo 5 de "Handbook on Seasonal Adjustment" [@handbookSA2018].
+3.5. Para el efecto de días laborables (trading-days) se usarán 6 regresores. Esta opción puede elegirse dentro de las especificaciones de RSAFull o ser añadida manualmente. Para más detalles sobre este punto ver el capítulo 5 de "Handbook on Seasonal Adjustment" [@handbookSA2018]. El número de regresores podrá variar en función de los resultados arrojados por los análisis anuales realizados. Estos detalles se recogerán en las especificaciones de cada análisis o revisión para documentar los cálculos.
 
 3.6. El efecto de Semana Santa y Año Bisiesto es detectado e incluido por la rutina TRAMO-SEATS RSAFull de forma automática si es significativo.
 
@@ -65,17 +66,17 @@ En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 
 # 4.Ajuste estacional de la serie temporal
 
-4.1. Para el ajuste estacional propiamente dicho se usará el método paramétrico de extracción de señal SEATS implementado en el algoritmo TRAMO-SEATS en las implementaciones de JDemetra+ mencionadas en las ección anterior.
+4.1. Para el ajuste estacional propiamente dicho se usará el método paramétrico de extracción de señal SEATS implementado en el algoritmo TRAMO-SEATS en las implementaciones de JDemetra+ mencionadas en la sección anterior.
 
-4.2. En los informes anuales y las revisiones mensuales se incluiran gráficos de razón S-I para monitorear la estacionalidad.
+4.2. En los informes anuales se incluiran gráficos de razón S-I para monitorear la estacionalidad.
 
 # 5.Política de revisiones
 
 5.1. La pólitica de revisión será la recogida en el punto 4.2 de "ESS guidelines on seasonal adjustment" [@ESSguidelines2015]: Partial Concurrent Adjustment. Esta política implica que el modelo, filtros, y outliers son identificados y estimados anualmente (y manualmente en las series más relevantes) y los parámetros se re-estiman cada vez que se reciben nuevas observaciones (mensualmente).
 
-5.2. La revisión exahustiva anual se realizará en los 3 meses inmediatos siguientes a la recepción de los datos definitivos del año anterior de la AEAT.
+5.2. El análisis exahustivo anual se realizará en los 3 meses inmediatos siguientes a la recepción de los datos definitivos del año anterior de la AEAT.
 
-5.3. Las revisiones parciales mensuales se llevarán a cabo de forma automatizada cuando se reciban los datos provisionales mensuales de la AEAT.
+5.3. Las revisiones se llevarán a cabo mensualmente de forma automatizada cuando se reciban los datos provisionales de la AEAT.
 
 5.4. La política Partial Concurrent Adjustment permite cierta flexibilidad y fine-tunning dependiendo de la versión de software utilizada. En el caso de RJDemetra+ v.3 es posible ajustar la ventana temporal para la detección y estimación de outliers. Para las revisiones anuales se usará como ventana toda la serie mientras que para las revisiones mensuales se usarán los 12 últimos meses.
 
@@ -83,7 +84,7 @@ En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 
 # 6.Particularidades y diagnóstico del ajuste estacional.
 
-6.1. La longitud de la series analizadas será de 15-16 años completos más los meses del año en curso. De esta manera evitamos en los posible los problemas que surgen con series muy cortas o muy largas [@handbookSA2018].
+6.1. La longitud de las series analizadas será de 15 años completos más los meses del año en curso, esto garantiza contar siempre con un mínimo de 180 observaciones. De esta manera evitamos en lo posible los problemas que surgen con series muy cortas o muy largas [@handbookSA2018].
 
 6.2. Para evaluar la calidad de los análisis se utilizarán los resultados de los tests incluidos en los paquetes de JDemtra+ citados con anterioridad.
 

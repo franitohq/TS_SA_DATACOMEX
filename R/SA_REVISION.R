@@ -9,20 +9,16 @@
 # *********HAY QUE REVISAR ESTA PARTE DEL CODIGO YA QUE PARECE QUE NO ESTA HACIENDO BIEN LA DETECCIÓN.******
 # El output de la funcion consta de lo siguiente:
 #   -Excel con la serie original revisada que puede importarse en la GUI de JDemetra+ para posteriores analisis.
-#   -Archivo de datos R que contine:  calendario, 
-#                                     regresores, 
-#                                     contexto, 
-#                                     especificacion inical y final del analisis anual, 
-#                                     especificacion inical y final de la revisión,
+#   -Archivo de datos R que contine:  especificacion inical y final de la revisión,
 #                                     resultados de la revision,
-#                                     serie original,
-#                                     serie desestacionalizada,
-#                                     serie tendencia,  
-#                                     serie componente estacional,
-#                                     serie componente irregular.
-#   -Lista con las 5 series anteriores par su carga en servidor.
+#                                     serie original revisada,
+#                                     serie desestacionalizada revisada,
+#                                     serie tendencia revisada,  
+#                                     serie componente estacional revisada,
+#                                     serie componente irregular revisada.
+#   -Lista con las 5 series revisadas anteriores par su carga en servidor.
 # 
-# Los dos primeros elementos del output se guardar en una carpeta con el nombre: ANALISIS_%m.%Y
+# Los dos primeros elementos del output se guardan en una carpeta con el nombre: REVISION_%m.%Y
 
 
 SA_revision <- function(ts_tibble, 
@@ -81,7 +77,7 @@ SA_revision <- function(ts_tibble,
   serie_previa_name <- paste0("original_ts_", formatted_previous_date)
   
   
-# QUITAMOS LA ULTIMA OBSERVACION DE LA SERIA ACTUALIZADA (METER UN TARGET)-----
+  # QUITAMOS LA ULTIMA OBSERVACION DE LA SERIA ACTUALIZADA (METER UN TARGET)-----
   
   ts_ref <- eval(parse(text = serie_previa_name))
   current_ts_trimmed <- window(eval(parse(text = serie_actual_name)), 
@@ -129,9 +125,10 @@ SA_revision <- function(ts_tibble,
   tramo_refreshed_current_spec <- rjd3tramoseats::tramoseats_refresh(
     spec = previous_result_spec, # point spec to be refreshed
     refspec = previous_estimation_spec, #domain spec (set of constraints)
-    policy = "Outliers",
-    period = 12, # Monthly series
-    start = c(2023,1)
+    # policy = "Outliers",
+    policy = "FreeParameters",
+    # period = 12, # Monthly series
+    # start = c(2023,1)
     # start = c(year_outlier_detect, month_outlier_detect), #Date from which outliers will be re-detected
     # end = c(current_year, current_month) 
   )
@@ -148,11 +145,11 @@ SA_revision <- function(ts_tibble,
   sa_tramoseats_ud_revised <- rjd3tramoseats::tramoseats(current_ts, tramo_refreshed_current_spec, context = my_context)
   
   
-  sa_tramoseats_ud_revised_name <- paste0("sa_tramoseats_ud_REVISION_", current_formatted_date) 
+  sa_tramoseats_ud_revised_name <- paste0("REVISION_sa_tramoseats_ud_", current_formatted_date) 
   assign(sa_tramoseats_ud_revised_name, sa_tramoseats_ud_revised) 
   
   
-  # GUARDAR LAS ESPECIFICACIONES D ELA REVISION-----
+  # GUARDAR LAS ESPECIFICACIONES DE LA REVISION-----
   # COMPROBAR LA VENTANA DE DETECCION DE OUTLIERS QUE DEBERÍA SER LA ESPECIFICADA EN star = .....
   
   rev_est_spec_name <- paste0("REVISION_", current_formatted_date, "_estimation_spec") 
@@ -166,11 +163,11 @@ SA_revision <- function(ts_tibble,
   # OBTENER SERIES FINALES------
   str(sa_tramoseats_ud_revised$result$final)
   
-  rev_original_ts_name <- paste0("original_ts_REVISION_", current_formatted_date) 
-  rev_seasonally_adjusted_ts_name <- paste0("seasonally_adjusted_ts_REVISION_", current_formatted_date) 
-  rev_trend_ts_name <- paste0("trend_ts_REVISION_", current_formatted_date) 
-  rev_seasonal_component_ts_name <- paste0("seasonal_component_ts_REVISION_", current_formatted_date) 
-  rev_irregular_ts_name <- paste0("irregular_ts_REVISION_", current_formatted_date) 
+  rev_original_ts_name            <- paste0("REVISION_original_ts_", current_formatted_date) 
+  rev_seasonally_adjusted_ts_name <- paste0("REVISION_seasonally_adjusted_ts_", current_formatted_date) 
+  rev_trend_ts_name               <- paste0("REVISION_trend_ts_", current_formatted_date) 
+  rev_seasonal_component_ts_name  <- paste0("REVISION_seasonal_component_ts_", current_formatted_date) 
+  rev_irregular_ts_name           <- paste0("REVISION_irregular_ts_", current_formatted_date) 
   
   assign(rev_original_ts_name, sa_tramoseats_ud_revised$result$final$series$data) 
   assign(rev_seasonally_adjusted_ts_name, sa_tramoseats_ud_revised$result$final$sa$data) 
@@ -188,6 +185,7 @@ SA_revision <- function(ts_tibble,
   
   # GUARDADO DE RESULTADOS-----
   # GUARDAMOS LA SERIE ANALIZADA COMO EXCEL POR SI ES NECESARIO USARLA EN LA GUI JDEMETRA+
+  
   ts_df <- data.frame(Time = as.Date(zoo::as.yearmon(time(y_raw))), 
                       Value = as.numeric(y_raw) 
   )
@@ -201,30 +199,21 @@ SA_revision <- function(ts_tibble,
   data_file_name <- paste0("DATOS_REVISION_", current_formatted_date, ".RData")
   data_full_path <- file.path("output", current_folder_name, data_file_name)
   
-  # ALGUNOS OBJETOS SE GENERAN ÚNICAMENTE EN EL ANALISIS PERO CONVIENE TENERLOS SIEMPRE DISPONIBLES PARA
-  # REALIZAR CONSULTAS, COMPROBACIONES, O CÁLCULOS. SUS NOMBRES SE IRÁN ACTUALIZANDO DE TAL FORMA QUE LA FECHA
-  # SIEMPRE QUEDE ACTUALIZADA Y SE IRAN GUARDANDO DE UNA REVISIÓN A OTRA.
-  
-  save(spanish_calendar,
-       list = c(regs_td_name,
-                my_regressors_name,
-                my_context_name,
-                core_tramoseats_spec_name,
-                tramoseats_spec_final_name,
-                sa_tramoseats_ud_name,
-                result_spec_name, 
-                est_spec_name,
-                original_ts_name,
-                seasonally_adjusted_ts_name,
-                trend_ts_name,
-                seasonal_component_ts_name,
-                irregular_ts_name
+    
+  save(list = c(sa_tramoseats_ud_revised_name,
+                rev_result_spec_name, 
+                rev_est_spec_name,
+                rev_original_ts_name,
+                rev_seasonally_adjusted_ts_name,
+                rev_trend_ts_name,
+                rev_seasonal_component_ts_name,
+                rev_irregular_ts_name
        ),
        file = data_full_path)
   
-  ts_list_name <- paste0("ts_list_REVISION_", current_formatted_date) 
+  ts_list_name <- paste0("REVISION_ts_list_", current_formatted_date) 
   ts_list <-   list(original = original_ts,
-                    seasonally_adjusted =seasonally_adjusted_ts,
+                    seasonally_adjusted = seasonally_adjusted_ts,
                     trend = trend_ts,
                     seasonal_component = seasonal_component_ts,
                     irregular = irregular_ts)
@@ -232,6 +221,4 @@ SA_revision <- function(ts_tibble,
   assign(ts_list_name, ts_list)
   
   return(eval(parse(text = ts_list_name)))
-  
-  
 } 
