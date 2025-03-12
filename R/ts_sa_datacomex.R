@@ -169,9 +169,10 @@ full_path <- file.path("output", folder_name)
 dir.create(full_path)
 rm(list = ls())
 
+
 # CARGA DE DATOS CON DATACOMEX-----
 
-datacomex_E_raw <- datacomexr::sec(flujo = "E", nivel=1, desde=1995, nocache = TRUE) |>
+datacomex_E_raw <- datacomexr::sec(flujo = "E", nivel=1, desde=2010, nocache = TRUE) |>
   dplyr::group_by(year, mes, flujo) |>
   dplyr::summarise(euros=sum(euros, na.rm=T)) |>
   dplyr::select(year, mes, euros)
@@ -184,6 +185,8 @@ datacomex_I_raw <- datacomexr::sec(flujo = "I", nivel=1, desde=2010, nocache = T
   dplyr::select(year, mes, euros)
 
 
+load(file = "output/EXPORTACIONES/ANALISIS_E_03.2025/DATOS_ANALISIS_03.2025.RData")
+# load(file = "output/IMPORTACIONES/ANALISIS_I_03.2025/DATOS_ANALISIS_03.2025.RData")
 
 # ts_air <- AirPassengers
 
@@ -343,7 +346,6 @@ assign(seasonally_adjusted_ts_name, sa_tramoseats_ud$result$final$sa$data)
 assign(trend_ts_name, sa_tramoseats_ud$result$final$t$data) 
 assign(seasonal_component_ts_name, sa_tramoseats_ud$result$final$s$data) 
 assign(irregular_ts_name, sa_tramoseats_ud$result$final$i$data) 
-
 
 
 original_ts <- sa_tramoseats_ud$result$final$series$data

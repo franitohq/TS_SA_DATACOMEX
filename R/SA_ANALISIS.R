@@ -31,8 +31,10 @@ SA_analisis <- function(ts_tibble,
   # CREAR ESTRUCTURA DE CARPETAS PARA GUARDAR LOS INPUTS Y OUTPUTS DE LOS ANALISIS-----
   current_date <- Sys.Date()
   formatted_date <- format(current_date, "%m.%Y")
-  folder_name <- paste0("ANALISIS_", formatted_date)
-  full_path <- file.path("output", folder_name)
+  # folder_name <- paste0("ANALISIS_E_", formatted_date)
+  # full_path <- file.path("output/EXPORTACIONES", folder_name)
+  folder_name <- paste0("ANALISIS_I_", formatted_date)
+  full_path <- file.path("output/IMPORTACIONES", folder_name)
   dir.create(full_path)
   
   # PREPARACIÓN DE LAS SERIES-----
@@ -180,12 +182,15 @@ SA_analisis <- function(ts_tibble,
   ts_df$Time <- format(ts_df$Time, "1.%m.%Y")
   
   ts_data_name <- paste0("ts_raw_ANALISIS_", formatted_date, ".xlsx")
-  xls_output_path <- file.path("output", folder_name, ts_data_name)
+  # xls_output_path <- file.path("output/EXPORTACIONES", folder_name, ts_data_name)
+  xls_output_path <- file.path("output/IMPORTACIONES", folder_name, ts_data_name)
   openxlsx::write.xlsx(ts_df, file = xls_output_path, rowNames = FALSE)
   
   
   data_file_name <- paste0("DATOS_ANALISIS_", formatted_date, ".RData")
-  data_full_path <- file.path("output", folder_name, data_file_name)
+  # data_full_path <- file.path("output/EXPORTACIONES", folder_name, data_file_name)
+  data_full_path <- file.path("output/IMPORTACIONES", folder_name, data_file_name)
+  
   
   
   save(spanish_calendar,
