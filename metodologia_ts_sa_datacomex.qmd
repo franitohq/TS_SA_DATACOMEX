@@ -13,7 +13,35 @@ csl: data/american-mathematical-society.csl
 output-dir: output
 ---
 
-# 0.Resumen
+# 0.Metodología de Analísis y Desestacionalizaciónd de Series Temporales.
+Para una mejor interpretación de las series de exportaciones e importaciones es necesario realizar un análisis de las mismas en el que se filtren las distintas contribuciones que la componen: ciclo-tendencia, estacional-calendario e irregular.
+
+Las series de importaciones y exportaciones se estudiarán incluyendo el año en curso y los 15 años completos inmediatamente anteriores. Estas series están compuestas de datos definitivos y provisionales (por lo general el año en curso y el año anterior). 
+
+Anualmente, cuando se reciban los datos definitivso de la AEAT del año anterior, se realizará un analisis exahustivo donde se ientificará el modelo y se estimarán sus parámetros con los datos disponibles. 
+
+Mensualmente, cuando se reciban los datos provisionales mensuales de la AEAT, se realizará un revisión de las series que consistitirá en una reestimación de los parámetros sin alterar el modelo previamente identificado.
+
+El análisis y la desestacionalización de las series de exportaciones e importaciones se realizará con el paquete RJDemetra+ v.3. Este paquete es una versión de R del programa homónimo ampliamente utilizado y recomendado por EUROSTAT y el ECB [@ESSguidelines2015].
+
+El algoritmo usado es TRAMO-SEATS con la especificacion automática "RSAFull" con las siguientes modificaciones sobre la especificacion por defecto:
+
+-Calendario de fiestas nacionales españolas.
+
+-Detección e inclusión (si procede) de regresores de año bisiesto (1 regresor), días laborables (6 regresores) y semana santa (1 regresor, incluyendo lunes de pascua "IncludeEasterMonday").
+
+-Detección e inclusión de outliers estacionales (SO) además de los tipos que ya se incluyen por defecto en la especificación "RSAFull".
+
+Las cracterísticas principales de los modelos identificados para las series de exportaciones e importaciones son las siguientes:
+
+-EXPORTACIONES: Modelo SARIMA (0,1,1)(0,1,1) con transformación logarítmica. Se incluyen 6 regresores para efecto trading day (uno por cada día de la semana, excepto domingo) y 1 regresor de semana santa. No se detecta regresor de año bisiesto. Se detectan 3 outliers: dos de tipo TC (Cambio Temporal), en 03-2020 y 04-2020, y uno de tipo LS (Cambio de Nivel) en 04-2024.
+
+-IMPORTACIONES: Modelo SARIMA (1,1,0)(0,1,1) con transformación logarítmica. Se incluyen 6 regresores para efecto trading day (uno por cada día de la semana, excepto domingo) y 1 regresor de semana santa. No se detecta regresor de año bisiesto. Se detectan 2 outliers: uno de tipo TC (Cambio Temporal) en 04-2020 y uno de tipo LS (Cambio de Nivel) en 03-2020.
+      
+
+
+
+
 
 # 1.Introducción
 
@@ -43,7 +71,7 @@ En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 
 3.4. **A las especificaciones por defecto se añadirá el calendario de fiestas nacionales fijas.** Comprende los días siguientes:
 
-```             
+```         
 -1 de enero, Año Nuevo.
 -6 de enero, Reyes.
 -1 de mayo, Día del Trabajador.
@@ -67,7 +95,7 @@ En las secciones siguientes se detallan otros aspectos relevantes del proceso.
 
 # 5.Política de revisiones
 
-5.1. **La pólitica de revisión será la recogida en el punto 4.2 de "ESS guidelines on seasonal adjustment" [@ESSguidelines2015]: Partial Concurrent Adjustment.** 
+5.1. **La pólitica de revisión será la recogida en el punto 4.2 de "ESS guidelines on seasonal adjustment" [@ESSguidelines2015]: Partial Concurrent Adjustment.**
 
 5.2. **El análisis exahustivo anual se realizará en los 3 meses inmediatos siguientes a la recepción de los datos definitivos del año anterior de la AEAT.**
 
