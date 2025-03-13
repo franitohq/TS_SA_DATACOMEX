@@ -29,19 +29,23 @@ SA_analisis <- function(ts_tibble,
                         freq)
 {
   # CREAR ESTRUCTURA DE CARPETAS PARA GUARDAR LOS INPUTS Y OUTPUTS DE LOS ANALISIS-----
-  current_date <- Sys.Date()
+  # current_date <- Sys.Date()
+  current_date <- ISOdate(2023, 12, 01) #SOLO PARA LAS SIMULACIONES
   formatted_date <- format(current_date, "%m.%Y")
-  # folder_name <- paste0("ANALISIS_E_", formatted_date)
+  folder_name <- paste0("ANALISIS_E_", formatted_date)
   # full_path <- file.path("output/EXPORTACIONES", folder_name)
-  folder_name <- paste0("ANALISIS_I_", formatted_date)
-  full_path <- file.path("output/IMPORTACIONES", folder_name)
+  # folder_name <- paste0("ANALISIS_I_", formatted_date)
+  # full_path <- file.path("output/IMPORTACIONES", folder_name)
+  full_path <- file.path("simulations", folder_name) #SOLO PARA LAS SIMULACIONES
   dir.create(full_path)
   
   # PREPARACIÓN DE LAS SERIES-----
   
-  y_raw <- stats::ts(ts_tibble$euros,
-                     start = inicio,
-                     frequency = freq)
+  y_raw <- ts_tibble #SOLO PARA LAS SIMULACIONES
+  
+  # y_raw <- stats::ts(ts_tibble$euros,
+  #                    start = inicio,
+  #                    frequency = freq)
   
   
   
@@ -183,13 +187,15 @@ SA_analisis <- function(ts_tibble,
   
   ts_data_name <- paste0("ts_raw_ANALISIS_", formatted_date, ".xlsx")
   # xls_output_path <- file.path("output/EXPORTACIONES", folder_name, ts_data_name)
-  xls_output_path <- file.path("output/IMPORTACIONES", folder_name, ts_data_name)
+  # xls_output_path <- file.path("output/IMPORTACIONES", folder_name, ts_data_name)
+  xls_output_path <- file.path("simulations", folder_name, ts_data_name) #SOLO PARA LAS SIMULACIONES
   openxlsx::write.xlsx(ts_df, file = xls_output_path, rowNames = FALSE)
   
   
   data_file_name <- paste0("DATOS_ANALISIS_", formatted_date, ".RData")
   # data_full_path <- file.path("output/EXPORTACIONES", folder_name, data_file_name)
-  data_full_path <- file.path("output/IMPORTACIONES", folder_name, data_file_name)
+  # data_full_path <- file.path("output/IMPORTACIONES", folder_name, data_file_name)
+  data_full_path <- file.path("simulations", folder_name, data_file_name) #SOLO PARA LAS SIMULACIONES
   
   
   

@@ -26,12 +26,14 @@ SA_revision <- function(ts_tibble,
                         freq)
 {
   # CREAMOS EL DIRECTORIO PARA GUARDAR LOS RESULTADOS DE LA REVISION-----
-  current_date <- Sys.Date()
+  # current_date <- Sys.Date()
+  current_date <- ISOdate(2024, 01, 01) #SOLO PARA LAS SIMULACIONES
   current_formatted_date <- format(current_date, "%m.%Y")
   current_folder_name <- paste0("REVISION_E_", current_formatted_date)
-  current_full_path <- file.path("output/EXPORTACIONES", current_folder_name)
+  # current_full_path <- file.path("output/EXPORTACIONES", current_folder_name)
   # current_folder_name <- paste0("REVISION_I_", current_formatted_date)
   # current_full_path <- file.path("output/IMPORTACIONES", current_folder_name)
+  current_full_path <- file.path("simulations", current_folder_name) #SOLO PARA LAS SIMULACIONES
   dir.create(current_full_path)
   current_year <- year(current_date)
   current_month <- month(current_date)
@@ -39,7 +41,8 @@ SA_revision <- function(ts_tibble,
   current_month
   
   # CARGAR DATOS DEL ANALISIS/REVISION ANTERIOR-----
-  previous_date <- Sys.Date() - months(1)
+  # previous_date <- Sys.Date() - months(1)
+  previous_date <- current_date - months(1) #SOLO PARA LAS SIMULACIONES
   formatted_previous_date <- format(previous_date, "%m.%Y")
   # formatted_previous_date <- current_formatted_date
   
@@ -47,8 +50,10 @@ SA_revision <- function(ts_tibble,
   # AL TENER DIFERENTES NOMBRES EN CADA CASO LAS CARPETAS Y FICHEROS  NECESITAMOS 
   # EXTRAER ESTOS NOMBRES DE LA CARPETA "OUTPUT". DE ESTA MANERA EL PROCESO SE HACE DE FORMA 
   # AUTOMATICA PARA CUALQUIER MES INDEPENDIENTEMENTE DE LA OPERACIÓN LLEVADA A CABO EL MES ANTERIOR.
-  folders <- list.dirs("output/EXPORTACIONES")
+  # folders <- list.dirs("output/EXPORTACIONES")
   # folders <- list.dirs("output/IMPORTACIONES")
+  folders <- list.dirs("simulations") #SOLO PARA LAS SIMULACIONES
+  
   matching_folder <- folders[grep(paste0(formatted_previous_date, "$"), folders)]  
   
   # AHORA QUE TENEMOS EL NOMBRE DE LA CARPETA QUE CONTIENE LOS DATOS DE LA OPERACIÓN 
@@ -63,9 +68,11 @@ SA_revision <- function(ts_tibble,
   
   # PREPARACIÓN DE LAS SERIES-----
 
-  y_raw <- stats::ts(datacomex_E_raw$euros,
-                     start = c(2010, 1),
-                     frequency = 12)
+  y_raw <- ts_tibble #SOLO PARA LAS SIMULACIONES
+  
+  # y_raw <- stats::ts(datacomex_E_raw$euros,
+  #                    start = c(2010, 1),
+  #                    frequency = 12)
   
   # y_raw <- stats::ts(ts_tibble$euros,
   #                    start = inicio,
@@ -195,14 +202,16 @@ SA_revision <- function(ts_tibble,
   ts_df$Time <- format(ts_df$Time, "1.%m.%Y")
   
   ts_data_name <- paste0("ts_raw_REVISION_", current_formatted_date, ".xlsx")
-  xls_output_path <- file.path("output/EXPORTACIONES", current_folder_name, ts_data_name)
+  # xls_output_path <- file.path("output/EXPORTACIONES", current_folder_name, ts_data_name)
   # xls_output_path <- file.path("output/IMPORTACIONES", folder_name, ts_data_name)
+  xls_output_path <- file.path("simulations", folder_name, ts_data_name)
   openxlsx::write.xlsx(ts_df, file = xls_output_path, rowNames = FALSE)
   
   
   data_file_name <- paste0("DATOS_REVISION_", current_formatted_date, ".RData")
-  data_full_path <- file.path("output/EXPORTACIONES", current_folder_name, data_file_name)
+  # data_full_path <- file.path("output/EXPORTACIONES", current_folder_name, data_file_name)
   # data_full_path <- file.path("output/IMPORTACIONES", folder_name, data_file_name)
+  data_full_path <- file.path("simulations ", current_folder_name, data_file_name)
   
     
   save(list = c(sa_tramoseats_ud_revised_name,

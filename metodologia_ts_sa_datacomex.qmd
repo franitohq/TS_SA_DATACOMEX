@@ -14,17 +14,18 @@ output-dir: output
 ---
 
 # 0.Metodología de Analísis y Desestacionalizaciónd de Series Temporales.
-Para una mejor interpretación de las series de exportaciones e importaciones es necesario realizar un análisis de las mismas en el que se filtren las distintas contribuciones que la componen: ciclo-tendencia, estacional-calendario e irregular.
 
-Las series de importaciones y exportaciones se estudiarán incluyendo el año en curso y los 15 años completos inmediatamente anteriores. Estas series están compuestas de datos definitivos y provisionales (por lo general el año en curso y el año anterior). 
+Para una mejor interpretación de las series de exportaciones e importaciones es necesario realizar un análisis en el que se filtren las distintas contribuciones que las componen: ciclo-tendencia, estacional-calendario e irregular.
 
-Anualmente, cuando se reciban los datos definitivso de la AEAT del año anterior, se realizará un analisis exahustivo donde se ientificará el modelo y se estimarán sus parámetros con los datos disponibles. 
+Las series de importaciones y exportaciones se estudiarán incluyendo el año en curso y los 15 años completos inmediatamente anteriores. Estas series están compuestas de datos definitivos y provisionales (por lo general, el año en curso y el año anterior).
+
+Anualmente, cuando se reciban los datos definitivos de la AEAT del año anterior, se realizará un análisis exhaustivo dónde se identificará el modelo y se estimarán sus parámetros con los datos disponibles.
 
 Mensualmente, cuando se reciban los datos provisionales mensuales de la AEAT, se realizará un revisión de las series que consistitirá en una reestimación de los parámetros sin alterar el modelo previamente identificado.
 
 El análisis y la desestacionalización de las series de exportaciones e importaciones se realizará con el paquete RJDemetra+ v.3. Este paquete es una versión de R del programa homónimo ampliamente utilizado y recomendado por EUROSTAT y el ECB [@ESSguidelines2015].
 
-El algoritmo usado es TRAMO-SEATS con la especificacion automática "RSAFull" con las siguientes modificaciones sobre la especificacion por defecto:
+El algoritmo usado es TRAMO-SEATS con la especificación automática "RSAFull" con las siguientes modificaciones sobre la especificación por defecto:
 
 -Calendario de fiestas nacionales españolas.
 
@@ -37,11 +38,6 @@ Las cracterísticas principales de los modelos identificados para las series de 
 -EXPORTACIONES: Modelo SARIMA (0,1,1)(0,1,1) con transformación logarítmica. Se incluyen 6 regresores para efecto trading day (uno por cada día de la semana, excepto domingo) y 1 regresor de semana santa. No se detecta regresor de año bisiesto. Se detectan 3 outliers: dos de tipo TC (Cambio Temporal), en 03-2020 y 04-2020, y uno de tipo LS (Cambio de Nivel) en 04-2024.
 
 -IMPORTACIONES: Modelo SARIMA (1,1,0)(0,1,1) con transformación logarítmica. Se incluyen 6 regresores para efecto trading day (uno por cada día de la semana, excepto domingo) y 1 regresor de semana santa. No se detecta regresor de año bisiesto. Se detectan 2 outliers: uno de tipo TC (Cambio Temporal) en 04-2020 y uno de tipo LS (Cambio de Nivel) en 03-2020.
-      
-
-
-
-
 
 # 1.Introducción
 

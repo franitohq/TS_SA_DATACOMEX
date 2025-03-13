@@ -80,7 +80,83 @@
 # install.packages("broom")
 
 # Librerias Generales-----
+library("shiny")
+library("tidyverse")
+library("bslib")
+library("future")
+library("promises")
+library("plotly")
+library("tsibble")
+library("rJava")
+library("openxlsx")
+library("lubridate")
+library("zoo")
+library("scales")
+library("patchwork")
+library("tools")
 
+# DATACOMEXR
+library("datacomexr")
+
+# GENERAL TSA
+library("TSA")
+library("astsa")
+library("tseries")
+library("forecast")
+library("fma")
+library("timeSeries")
+# library("Rmetrics")
+library("fGarch")
+library("fUnitRoots")
+library("MTS") #MULTIVARIATE TIME SERIES ANALYSIS PACKAGE
+library("seasonal")
+library("seasonalview")
+library("feasts")
+# library(c("XLConnect", "XML"))
+library("fpp3")
+library("fable")
+library("car")
+library("dygraphs")
+library("LSTS")
+library("signal")
+
+# RJDemetra v.2
+library("RJDemetra")
+library("rjdworkspace")
+# library("rjdmarkup")
+library("JDCruncheR")
+library("ggdemetra")
+library("rjdqa")
+library("rjwsacruncher")
+
+
+# RJDemetra v.3
+library("rjd3toolkit")
+library("rjd3x13")
+library("rjd3tramoseats")
+library("rjd3providers")
+library("rjd3workspace")
+library("rjd3highfreq")
+library("rjd3filters")
+library("rjd3x11plus")
+library("rjd3bench")
+library("rjd3revisions")
+library("rjd3nowcasting")
+library("rjd3sts")
+library("rjd3stl")
+library("ggdemetra3")
+
+
+
+# Gráficos
+library("GGally")
+library("urca")
+library("fracdiff")
+library("glue")
+library("seasonalview")
+
+# Análisis Multivariante
+library("broom") #PCA
 
 
 

@@ -130,3 +130,18 @@ save(y_12_23,
      y_12_24,
      y_1_25,
      file = data_full_path)
+
+
+# SIMULACION
+load(file = data_full_path)
+
+
+source("C:/Users/francisco.hernando/Documents/src/TS_SA_DATACOMEX/R/SA_ANALISIS.R")
+source("C:/Users/francisco.hernando/Documents/src/TS_SA_DATACOMEX/R/SA_REVISION.R")
+
+SA_analisis(ts_tibble = y_12_23)
+SA_revision(ts_tibble = y_1_24)
+.
+.
+.
+SA_analisis(ts_tibble = y_1_25)
