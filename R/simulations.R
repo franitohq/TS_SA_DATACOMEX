@@ -141,7 +141,15 @@ source("C:/Users/francisco.hernando/Documents/src/TS_SA_DATACOMEX/R/SA_REVISION.
 
 SA_analisis(ts_tibble = y_12_23)
 SA_revision(ts_tibble = y_1_24)
-.
-.
-.
+SA_revision(ts_tibble = y_2_24)
+SA_revision(ts_tibble = y_3_24)
+SA_revision(ts_tibble = y_4_24)
+SA_revision(ts_tibble = y_5_24)
+SA_revision(ts_tibble = y_6_24)
+SA_revision(ts_tibble = y_7_24)
+SA_revision(ts_tibble = y_8_24)
+SA_revision(ts_tibble = y_9_24)
+SA_revision(ts_tibble = y_10_24)
+SA_revision(ts_tibble = y_11_24)
+SA_revision(ts_tibble = y_12_24)
 SA_analisis(ts_tibble = y_1_25)

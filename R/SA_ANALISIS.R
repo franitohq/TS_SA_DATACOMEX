@@ -158,11 +158,11 @@ SA_analisis <- function(ts_tibble,
   
   # OBTENER SERIES FINALES------
 
-  original_ts_name <-             paste0("ANALISIS_original_ts_", formatted_date) 
-  seasonally_adjusted_ts_name <-  paste0("ANALISIS_seasonally_adjusted_ts_", formatted_date) 
-  trend_ts_name <-                paste0("ANALISIS_trend_ts_", formatted_date) 
-  seasonal_component_ts_name <-   paste0("ANALISIS_seasonal_component_ts_", formatted_date) 
-  irregular_ts_name <-            paste0("ANALISIS_irregular_ts_", formatted_date)
+  original_ts_name <-             paste0("original_ts_", formatted_date) 
+  seasonally_adjusted_ts_name <-  paste0("seasonally_adjusted_ts_", formatted_date) 
+  trend_ts_name <-                paste0("trend_ts_", formatted_date) 
+  seasonal_component_ts_name <-   paste0("seasonal_component_ts_", formatted_date) 
+  irregular_ts_name <-            paste0("irregular_ts_", formatted_date)
   
   assign(original_ts_name, sa_tramoseats_ud$result$final$series$data) 
   assign(seasonally_adjusted_ts_name, sa_tramoseats_ud$result$final$sa$data) 

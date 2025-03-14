@@ -27,7 +27,7 @@ SA_revision <- function(ts_tibble,
 {
   # CREAMOS EL DIRECTORIO PARA GUARDAR LOS RESULTADOS DE LA REVISION-----
   # current_date <- Sys.Date()
-  current_date <- ISOdate(2024, 01, 01) #SOLO PARA LAS SIMULACIONES
+  current_date <- ISOdate(2024, 09, 01) #SOLO PARA LAS SIMULACIONES
   current_formatted_date <- format(current_date, "%m.%Y")
   current_folder_name <- paste0("REVISION_E_", current_formatted_date)
   # current_full_path <- file.path("output/EXPORTACIONES", current_folder_name)
@@ -148,8 +148,8 @@ SA_revision <- function(ts_tibble,
   # EJECUTAR LA REVISION DE LA SERIE ACTUALIZADA CON LA ESPECIFICACION ACTUALZIADA-----
   current_ts <- eval(parse(text = serie_actual_name))
   
-  my_context_name <- paste0("my_context_", formatted_previous_date)
-  my_context <- eval(parse(text = my_context_name))
+  my_context_previous_name <- paste0("my_context_", formatted_previous_date)
+  my_context <- eval(parse(text = my_context_previous_name))
   
 
   sa_tramoseats_ud_revised <- rjd3tramoseats::tramoseats(current_ts, tramo_refreshed_current_spec, context = my_context)
@@ -171,13 +171,13 @@ SA_revision <- function(ts_tibble,
   
   
   # OBTENER SERIES FINALES------
-  str(sa_tramoseats_ud_revised$result$final)
+  # str(sa_tramoseats_ud_revised$result$final)
   
-  rev_original_ts_name            <- paste0("REVISION_original_ts_", current_formatted_date) 
-  rev_seasonally_adjusted_ts_name <- paste0("REVISION_seasonally_adjusted_ts_", current_formatted_date) 
-  rev_trend_ts_name               <- paste0("REVISION_trend_ts_", current_formatted_date) 
-  rev_seasonal_component_ts_name  <- paste0("REVISION_seasonal_component_ts_", current_formatted_date) 
-  rev_irregular_ts_name           <- paste0("REVISION_irregular_ts_", current_formatted_date) 
+  rev_original_ts_name            <- paste0("original_ts_", current_formatted_date) 
+  rev_seasonally_adjusted_ts_name <- paste0("seasonally_adjusted_ts_", current_formatted_date) 
+  rev_trend_ts_name               <- paste0("trend_ts_", current_formatted_date) 
+  rev_seasonal_component_ts_name  <- paste0("seasonal_component_ts_", current_formatted_date) 
+  rev_irregular_ts_name           <- paste0("irregular_ts_", current_formatted_date) 
   
   assign(rev_original_ts_name, sa_tramoseats_ud_revised$result$final$series$data) 
   assign(rev_seasonally_adjusted_ts_name, sa_tramoseats_ud_revised$result$final$sa$data) 
@@ -203,18 +203,23 @@ SA_revision <- function(ts_tibble,
   
   ts_data_name <- paste0("ts_raw_REVISION_", current_formatted_date, ".xlsx")
   # xls_output_path <- file.path("output/EXPORTACIONES", current_folder_name, ts_data_name)
-  # xls_output_path <- file.path("output/IMPORTACIONES", folder_name, ts_data_name)
-  xls_output_path <- file.path("simulations", folder_name, ts_data_name)
+  # xls_output_path <- file.path("output/IMPORTACIONES", current_folder_name, ts_data_name)
+  xls_output_path <- file.path("simulations", current_folder_name, ts_data_name)
   openxlsx::write.xlsx(ts_df, file = xls_output_path, rowNames = FALSE)
   
   
   data_file_name <- paste0("DATOS_REVISION_", current_formatted_date, ".RData")
   # data_full_path <- file.path("output/EXPORTACIONES", current_folder_name, data_file_name)
-  # data_full_path <- file.path("output/IMPORTACIONES", folder_name, data_file_name)
-  data_full_path <- file.path("simulations ", current_folder_name, data_file_name)
+  # data_full_path <- file.path("output/IMPORTACIONES", current_folder_name, data_file_name)
+  data_full_path <- file.path("simulations", current_folder_name, data_file_name)
+  
+  
+  my_context_current_name <- paste0("my_context_", current_formatted_date)
+  assign(my_context_current_name, my_context) 
   
     
-  save(list = c(sa_tramoseats_ud_revised_name,
+  save(list = c(my_context_current_name,
+                sa_tramoseats_ud_revised_name,
                 rev_result_spec_name, 
                 rev_est_spec_name,
                 rev_original_ts_name,
