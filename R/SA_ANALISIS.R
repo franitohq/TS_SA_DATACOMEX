@@ -30,7 +30,7 @@ SA_analisis <- function(ts_tibble,
 {
   # CREAR ESTRUCTURA DE CARPETAS PARA GUARDAR LOS INPUTS Y OUTPUTS DE LOS ANALISIS-----
   # current_date <- Sys.Date()
-  current_date <- ISOdate(2023, 12, 01) #SOLO PARA LAS SIMULACIONES
+  current_date <- ISOdate(2025, 01, 01) #SOLO PARA LAS SIMULACIONES
   formatted_date <- format(current_date, "%m.%Y")
   folder_name <- paste0("ANALISIS_E_", formatted_date)
   # full_path <- file.path("output/EXPORTACIONES", folder_name)

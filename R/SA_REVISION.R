@@ -27,7 +27,7 @@ SA_revision <- function(ts_tibble,
 {
   # CREAMOS EL DIRECTORIO PARA GUARDAR LOS RESULTADOS DE LA REVISION-----
   # current_date <- Sys.Date()
-  current_date <- ISOdate(2024, 09, 01) #SOLO PARA LAS SIMULACIONES
+  current_date <- ISOdate(2024, 12, 01) #SOLO PARA LAS SIMULACIONES
   current_formatted_date <- format(current_date, "%m.%Y")
   current_folder_name <- paste0("REVISION_E_", current_formatted_date)
   # current_full_path <- file.path("output/EXPORTACIONES", current_folder_name)
